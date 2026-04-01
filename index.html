@@ -7,11 +7,11 @@
 <meta name="description" content="Safety proxy for AI agents. Runs in Docker. Can't access your files. Open source.">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+  body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.7; }
   a { color: #38bdf8; text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  .container { max-width: 680px; margin: 0 auto; padding: 48px 24px; }
+  .container { max-width: 640px; margin: 0 auto; padding: 48px 24px; }
 
   h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
   h2 { font-size: 20px; font-weight: 600; color: #94a3b8; margin: 40px 0 16px; padding-top: 24px; border-top: 1px solid #1e293b; }
@@ -20,22 +20,26 @@
   p { color: #94a3b8; margin-bottom: 16px; }
   p strong { color: #e2e8f0; }
 
+  .step { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 20px; margin: 16px 0; }
+  .step-num { color: #38bdf8; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .step p { margin-bottom: 8px; }
+  .step p:last-child { margin-bottom: 0; }
+
   .code {
-    background: #1e293b; border: 1px solid #334155; border-radius: 8px;
-    padding: 16px 20px; font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 14px; color: #38bdf8; margin: 16px 0; overflow-x: auto;
-    position: relative;
+    background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+    padding: 12px 16px; font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    font-size: 14px; color: #38bdf8; margin: 10px 0; overflow-x: auto;
+    position: relative; word-break: break-all;
   }
-  .code .comment { color: #475569; }
   .code .copy {
-    position: absolute; top: 8px; right: 8px;
+    position: absolute; top: 6px; right: 6px;
     background: #334155; border: none; color: #94a3b8; padding: 3px 8px;
     border-radius: 4px; font-size: 11px; cursor: pointer; font-family: inherit;
   }
   .code .copy:hover { background: #475569; color: #e2e8f0; }
 
   ul { color: #94a3b8; padding-left: 20px; margin-bottom: 16px; }
-  li { margin-bottom: 6px; }
+  li { margin-bottom: 8px; }
   li strong { color: #e2e8f0; }
 
   .note {
@@ -43,22 +47,15 @@
     padding: 14px 18px; font-size: 14px; color: #94a3b8; margin: 20px 0;
   }
 
-  .team {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;
-  }
-  .person {
-    background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px;
-  }
-  .person .name { font-weight: 600; color: #e2e8f0; font-size: 15px; }
-  .person .role { color: #38bdf8; font-size: 13px; margin-bottom: 6px; }
-  .person .bio { color: #64748b; font-size: 13px; }
+  details { margin: 12px 0; }
+  summary { cursor: pointer; color: #94a3b8; font-size: 14px; }
+  summary:hover { color: #e2e8f0; }
+  details .inner { padding: 12px 0 0 0; font-size: 14px; color: #64748b; }
 
-  .links {
-    display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0;
-  }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
   .links a {
-    background: #1e293b; border: 1px solid #334155; padding: 8px 16px;
-    border-radius: 6px; font-size: 14px; color: #e2e8f0;
+    background: #1e293b; border: 1px solid #334155; padding: 8px 14px;
+    border-radius: 6px; font-size: 13px; color: #e2e8f0;
   }
   .links a:hover { background: #334155; text-decoration: none; }
 
@@ -67,10 +64,7 @@
     text-align: center; font-size: 13px; color: #334155;
   }
 
-  @media (max-width: 640px) {
-    .team { grid-template-columns: 1fr; }
-    h1 { font-size: 26px; }
-  }
+  @media (max-width: 640px) { h1 { font-size: 26px; } }
 </style>
 </head>
 <body>
@@ -79,95 +73,105 @@
 
 <h1>SafeClaw</h1>
 <p>
-  <strong>Safety proxy for AI agents.</strong>
-  Runs in a Docker container that can't access your files, email, or credentials.
-  Every LLM call gets tracked, dangerous actions get blocked, every verdict is cryptographically signed.
-  Open source.
+  <strong>A safety proxy for AI agents.</strong>
+  It runs in a sandboxed container on your computer.
+  It can't access your files, email, or passwords.
+  It watches what your AI agent does and blocks anything dangerous.
 </p>
 
-<h2>Get Started</h2>
+<h2>Setup (5 minutes)</h2>
 
-<p><strong>Step 1:</strong> Install <a href="https://docs.docker.com/get-docker/">Docker Desktop</a> if you don't have it (available for Mac, Windows, and Linux).</p>
-
-<p><strong>Step 2:</strong> Open a terminal and run:</p>
-
-<div class="code">
-  <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 -v safeclaw-workspace:/workspace ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
-  docker run -p 8899:8899 -v safeclaw-workspace:/workspace ghcr.io/aceteam-ai/aep-proxy
+<div class="step">
+  <div class="step-num">Step 1 — Install Docker Desktop</div>
+  <p>Docker lets SafeClaw run in an isolated container on your computer.</p>
+  <p>Download it here: <a href="https://www.docker.com/products/docker-desktop/">docker.com/products/docker-desktop</a></p>
+  <p style="font-size:13px; color:#64748b;">Available for Mac, Windows, and Linux. Follow the installer — it takes about 2 minutes. Make sure Docker Desktop is running (you'll see a whale icon in your taskbar/menu bar).</p>
 </div>
 
-<p><strong>Step 3:</strong> Open <a href="http://localhost:8899/aep/">http://localhost:8899/aep/</a> to set up your API key and see the dashboard.</p>
+<div class="step">
+  <div class="step-num">Step 2 — Open a terminal</div>
+  <p><strong>Mac:</strong> Open the app called <strong>Terminal</strong> (search for it in Spotlight with Cmd+Space).</p>
+  <p><strong>Windows:</strong> Open <strong>PowerShell</strong> (search for it in the Start menu).</p>
+  <p><strong>Linux:</strong> Open your terminal emulator.</p>
+</div>
 
-<p style="font-size: 14px; color: #64748b;">
-  The container can only access the <code>safeclaw-workspace</code> volume — not your files, email, or credentials.
-  Works on Mac, Windows, and Linux.
-</p>
+<div class="step">
+  <div class="step-num">Step 3 — Start SafeClaw</div>
+  <p>Paste this command and press Enter:</p>
+  <div class="code">
+    <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
+    docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy
+  </div>
+  <p style="font-size:13px; color:#64748b;">The first time, it will download about 1 GB. After that, it starts in seconds.</p>
+</div>
+
+<div class="step">
+  <div class="step-num">Step 4 — Open the dashboard</div>
+  <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a> in your browser.</p>
+  <p>You'll see the SafeClaw dashboard. From here you can configure your API key and watch your agent's activity in real time.</p>
+</div>
 
 <div class="note">
-  <strong>Workshop participants:</strong> If your instructor gave you a URL, skip the install.
-  Just set <code>OPENAI_BASE_URL</code> to their URL and run your agent.
+  <strong>In a workshop?</strong> Your instructor may give you a URL instead. If so, you don't need to install anything — just use their URL.
 </div>
 
-<h2>What It Does</h2>
+<h2>What Does SafeClaw Do?</h2>
 
 <ul>
-  <li><strong>Tracks cost</strong> — every call, every token, every model. Real-time dashboard.</li>
-  <li><strong>Blocks threats</strong> — port scans, exploit code, credential access. Blocked before reaching the LLM. $0 cost.</li>
-  <li><strong>Detects PII</strong> — SSN, credit card, email in responses. Blocked before your agent sees it.</li>
-  <li><strong>Signs verdicts</strong> — Ed25519 signed, Merkle chained. Cryptographic proof that safety checks ran.</li>
-  <li><strong>Enforces your policy</strong> — one YAML file per company. Healthcare, finance, startup — different rules, same engine.</li>
+  <li><strong>Tracks spending</strong> — see how much your AI agent is costing you, call by call.</li>
+  <li><strong>Blocks dangerous actions</strong> — if your agent tries to scan ports, run exploit code, or access credentials, SafeClaw stops it before it happens.</li>
+  <li><strong>Catches personal data leaks</strong> — if a response contains social security numbers, credit cards, or other sensitive info, it gets blocked.</li>
+  <li><strong>Creates an audit trail</strong> — every decision (allow, flag, or block) is recorded and cryptographically signed so you can prove what happened.</li>
 </ul>
 
-<p>Works with OpenClaw, NemoClaw, NanoClaw, CrewAI, LangChain, Claude Code, or any OpenAI-compatible agent.</p>
+<p>Works with OpenClaw, NemoClaw, NanoClaw, CrewAI, LangChain, Claude Code, and any other AI agent that calls an LLM API.</p>
 
-<h2>What is AEP?</h2>
-
-<p>
-  AEP (Agentic Execution Protocol) is the open protocol behind SafeClaw. It defines how agent calls are tracked, how safety is enforced, and how verdicts are signed. The protocol is Apache 2.0 — anyone can implement it. SafeClaw is the reference implementation.
-</p>
-<p>
-  Four pillars: <strong>cost tracking</strong>, <strong>safety enforcement</strong>, <strong>provenance</strong> (where data came from), and <strong>governance</strong> (who accessed what, with what consent).
-</p>
-
-<h2>Why Is This Free?</h2>
+<h2>Is This Free?</h2>
 
 <p>
-  SafeClaw and the AEP protocol are <strong>open source (Apache 2.0)</strong>. You can read every line of code.
-  The proxy, detectors, dashboard, and signed verdicts are all free.
+  Yes. SafeClaw is <strong>open source (Apache 2.0)</strong>. You can read every line of code on
+  <a href="https://github.com/aceteam-ai/safeclaw">GitHub</a>.
+  The proxy, safety detectors, dashboard, and signed verdicts are all free.
 </p>
 <p>
-  We make money when enterprises need managed safety — custom policies, hosted proxy with budget controls,
-  calibrated confidence scoring, and signed audit trails for compliance. The open source version is the real product, not a demo.
+  We offer paid services for companies that need managed hosting, custom safety policies, and compliance reporting.
+  The open source version is the full product, not a limited trial.
 </p>
 
-<h2>Who Built This</h2>
+<h2>Troubleshooting</h2>
 
-<p>
-  Built by <a href="https://aceteam.ai">AceTeam</a>. Open source. Apache 2.0.
-</p>
+<details>
+  <summary>"docker" is not recognized / command not found</summary>
+  <div class="inner">Docker Desktop isn't installed or isn't running. Download it from <a href="https://www.docker.com/products/docker-desktop/">docker.com</a> and make sure the app is open (whale icon in your taskbar).</div>
+</details>
 
-<h2>Resources</h2>
+<details>
+  <summary>The download is very slow</summary>
+  <div class="inner">The first download is about 1 GB. This is a one-time thing — after that, SafeClaw starts in seconds. If you're on slow WiFi, try a wired connection or hotspot.</div>
+</details>
+
+<details>
+  <summary>I can't open localhost:8899</summary>
+  <div class="inner">Make sure the Docker command is still running in your terminal. If it stopped, run it again. Also check that port 8899 isn't used by another app.</div>
+</details>
+
+<details>
+  <summary>I want to use pip instead of Docker</summary>
+  <div class="inner">
+    If you have Python 3.12+, you can run SafeClaw directly on your machine:<br><br>
+    <code>pip install aceteam-aep[all] && aceteam-aep proxy --port 8899</code><br><br>
+    Note: this runs on your host, not in a container. The proxy will have access to your filesystem. Docker is recommended for isolation.
+  </div>
+</details>
+
+<h2>Learn More</h2>
 
 <div class="links">
-  <a href="https://github.com/aceteam-ai/safeclaw">SafeClaw GitHub</a>
-  <a href="https://github.com/aceteam-ai/aceteam-aep">AEP Protocol Source</a>
-  <a href="https://pypi.org/project/aceteam-aep/">PyPI Package</a>
+  <a href="https://github.com/aceteam-ai/safeclaw">GitHub</a>
+  <a href="https://github.com/aceteam-ai/aceteam-aep">AEP Protocol</a>
+  <a href="https://pypi.org/project/aceteam-aep/">PyPI</a>
   <a href="https://aceteam.ai">AceTeam</a>
 </div>
-
-<h2>Alternative Install (pip)</h2>
-
-<p>If you prefer not to use Docker (developer mode — runs on your host):</p>
-
-<div class="code">
-  pip install aceteam-aep[all]<br>
-  aceteam-aep proxy --port 8899
-</div>
-
-<p style="font-size:13px; color:#64748b;">
-  Note: pip mode runs directly on your machine — the proxy has access to your filesystem.
-  Docker mode is recommended for isolation.
-</p>
 
 <div class="footer">
   SafeClaw by <a href="https://aceteam.ai">AceTeam</a> &middot; Open source (Apache 2.0)
