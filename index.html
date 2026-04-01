@@ -87,15 +87,17 @@
   <h1>Run AI Agents <span>Safely</span></h1>
   <p>
     Every call tracked. Every threat blocked. Every verdict signed.<br>
-    Docker container. Can't access your files.
+    Docker container. Only sees what you share.
   </p>
 </div>
 
 <div class="install" id="install-block">
   <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 -e OPENAI_API_KEY=$OPENAI_API_KEY ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
-  <span class="comment"># One command. Zero dependencies.</span><br>
+  <span class="comment"># One command. Your agent can only see ~/safeclaw.</span><br>
+  mkdir -p ~/safeclaw<br>
   docker run -p 8899:8899 \<br>
   &nbsp;&nbsp;-e OPENAI_API_KEY=$OPENAI_API_KEY \<br>
+  &nbsp;&nbsp;-v ~/safeclaw:/workspace \<br>
   &nbsp;&nbsp;ghcr.io/aceteam-ai/aep-proxy
 </div>
 
@@ -108,7 +110,7 @@
 <div class="features">
   <div class="feature">
     <h3>Sandboxed</h3>
-    <p>Runs in a Docker container. No access to your files, email, cookies, or credentials.</p>
+    <p>Runs in a Docker container. Only sees ~/safeclaw. No access to email, cookies, or credentials.</p>
   </div>
   <div class="feature">
     <h3>Blocks Threats</h3>
