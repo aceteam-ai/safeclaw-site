@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SafeClaw — Run AI Agents Safely</title>
+<meta name="description" content="Safety and accountability for AI agents. Every call tracked, every threat blocked, every verdict signed.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0e1a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+  a { color: #22d3ee; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .hero {
+    max-width: 720px; margin: 0 auto; padding: 80px 24px 60px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 48px; font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+  .hero h1 span { color: #22d3ee; }
+  .hero p { font-size: 20px; color: #94a3b8; line-height: 1.6; margin-bottom: 32px; }
+
+  .install {
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+    padding: 20px 28px; text-align: left; font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 16px; color: #22d3ee; max-width: 600px; margin: 0 auto 40px;
+    position: relative;
+  }
+  .install .comment { color: #64748b; }
+  .install .copy {
+    position: absolute; top: 12px; right: 12px;
+    background: #334155; border: none; color: #94a3b8; padding: 4px 10px;
+    border-radius: 4px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  .install .copy:hover { background: #475569; color: #e2e8f0; }
+
+  .features {
+    max-width: 720px; margin: 0 auto; padding: 0 24px 60px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .feature {
+    background: #111827; border: 1px solid #1e293b; border-radius: 10px;
+    padding: 24px;
+  }
+  .feature h3 { font-size: 16px; margin-bottom: 8px; color: #e2e8f0; }
+  .feature p { font-size: 14px; color: #94a3b8; line-height: 1.5; }
+
+  .verdicts {
+    max-width: 720px; margin: 0 auto; padding: 0 24px 60px;
+    display: flex; gap: 16px; justify-content: center;
+  }
+  .verdict {
+    padding: 8px 24px; border-radius: 6px; font-weight: 700;
+    font-size: 16px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .v-pass { background: #166534; color: #4ade80; }
+  .v-flag { background: #713f12; color: #fbbf24; }
+  .v-block { background: #7f1d1d; color: #f87171; }
+
+  .cta {
+    max-width: 720px; margin: 0 auto; padding: 0 24px 80px;
+    text-align: center;
+  }
+  .cta a {
+    display: inline-block; background: #22d3ee; color: #0a0e1a;
+    padding: 14px 32px; border-radius: 8px; font-weight: 700;
+    font-size: 16px; text-decoration: none;
+  }
+  .cta a:hover { background: #06b6d4; text-decoration: none; }
+  .cta p { margin-top: 16px; font-size: 14px; color: #64748b; }
+
+  .footer {
+    max-width: 720px; margin: 0 auto; padding: 24px;
+    text-align: center; font-size: 13px; color: #334155;
+    border-top: 1px solid #1e293b;
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 32px; }
+    .features { grid-template-columns: 1fr; }
+    .verdicts { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Run AI Agents <span>Safely</span></h1>
+  <p>
+    Every call tracked. Every threat blocked. Every verdict signed.<br>
+    Docker container. Can't access your files.
+  </p>
+</div>
+
+<div class="install" id="install-block">
+  <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 -e OPENAI_API_KEY=$OPENAI_API_KEY ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
+  <span class="comment"># One command. Zero dependencies.</span><br>
+  docker run -p 8899:8899 \<br>
+  &nbsp;&nbsp;-e OPENAI_API_KEY=$OPENAI_API_KEY \<br>
+  &nbsp;&nbsp;ghcr.io/aceteam-ai/aep-proxy
+</div>
+
+<div class="verdicts">
+  <span class="verdict v-pass">PASS</span>
+  <span class="verdict v-flag">FLAG</span>
+  <span class="verdict v-block">BLOCK</span>
+</div>
+
+<div class="features">
+  <div class="feature">
+    <h3>Sandboxed</h3>
+    <p>Runs in a Docker container. No access to your files, email, cookies, or credentials.</p>
+  </div>
+  <div class="feature">
+    <h3>Blocks Threats</h3>
+    <p>Port scans, exploits, PII leaks — blocked before reaching the LLM. $0 cost.</p>
+  </div>
+  <div class="feature">
+    <h3>Signed Verdicts</h3>
+    <p>Ed25519 signed. Merkle chained. Tamper-evident audit trail for every call.</p>
+  </div>
+  <div class="feature">
+    <h3>Your Policies</h3>
+    <p>One YAML file. Healthcare, finance, startup — different rules, same engine.</p>
+  </div>
+  <div class="feature">
+    <h3>Real-time Dashboard</h3>
+    <p>Cost, safety signals, governance context, Merkle chain — all at localhost:8899/aep/</p>
+  </div>
+  <div class="feature">
+    <h3>Works With Everything</h3>
+    <p>OpenClaw, NemoClaw, CrewAI, LangChain, Claude Code — any agent framework.</p>
+  </div>
+</div>
+
+<div class="cta">
+  <a href="https://github.com/aceteam-ai/safeclaw">View on GitHub</a>
+  <p>
+    <a href="https://github.com/aceteam-ai/aep-quickstart/blob/main/workshop/bootcamp.html">Workshop Guide</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://pypi.org/project/aceteam-aep/">PyPI</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://aceteam.ai">AceTeam</a>
+  </p>
+</div>
+
+<div class="footer">
+  SafeClaw by <a href="https://aceteam.ai">AceTeam</a> &middot; Open source (Apache 2.0)
+</div>
+
+</body>
+</html>
