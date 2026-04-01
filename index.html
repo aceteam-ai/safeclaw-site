@@ -87,22 +87,25 @@
 
 <h2>Get Started</h2>
 
-<p>Run this in your terminal. Requires <a href="https://docs.docker.com/get-docker/">Docker</a>.</p>
+<p><strong>Step 1:</strong> Install <a href="https://docs.docker.com/get-docker/">Docker Desktop</a> if you don't have it (available for Mac, Windows, and Linux).</p>
+
+<p><strong>Step 2:</strong> Open a terminal and run:</p>
 
 <div class="code">
-  <button class="copy" onclick="navigator.clipboard.writeText('mkdir -p ~/safeclaw && docker run -p 8899:8899 -v ~/safeclaw:/workspace ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
-  mkdir -p ~/safeclaw<br>
-  docker run -p 8899:8899 -v ~/safeclaw:/workspace ghcr.io/aceteam-ai/aep-proxy
+  <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 -v safeclaw-workspace:/workspace ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
+  docker run -p 8899:8899 -v safeclaw-workspace:/workspace ghcr.io/aceteam-ai/aep-proxy
 </div>
 
-<p>
-  Then open <strong>http://localhost:8899/aep/</strong> to configure your API key and see the dashboard.
-  The container can only access <code>~/safeclaw</code> — nothing else on your machine.
+<p><strong>Step 3:</strong> Open <a href="http://localhost:8899/aep/">http://localhost:8899/aep/</a> to set up your API key and see the dashboard.</p>
+
+<p style="font-size: 14px; color: #64748b;">
+  The container can only access the <code>safeclaw-workspace</code> volume — not your files, email, or credentials.
+  Works on Mac, Windows, and Linux.
 </p>
 
 <div class="note">
-  <strong>Workshop participants:</strong> If your instructor provided a proxy URL, you don't need to install anything.
-  Just set <code>OPENAI_BASE_URL</code> to the URL they gave you and run your agent.
+  <strong>Workshop participants:</strong> If your instructor gave you a URL, skip the install.
+  Just set <code>OPENAI_BASE_URL</code> to their URL and run your agent.
 </div>
 
 <h2>What It Does</h2>
@@ -140,23 +143,8 @@
 <h2>Who Built This</h2>
 
 <p>
-  Built by <a href="https://aceteam.ai">AceTeam</a> — engineers from University of Waterloo, Apple, Amazon, Google, and LinkedIn.
-  Based in Toronto and the Bay Area.
-  The safety and trust expertise comes from 12+ years building Trust & Safety AI platforms at Google and LinkedIn.
+  Built by <a href="https://aceteam.ai">AceTeam</a>. Open source. Apache 2.0.
 </p>
-<p style="font-size: 14px;">
-  <a href="https://www.linkedin.com/company/aceteam-ai/">AceTeam on LinkedIn</a>
-</p>
-
-<h2>Workshop Guide</h2>
-
-<p>Running a SafeClaw workshop? Here's everything you need:</p>
-
-<div class="links">
-  <a href="https://github.com/aceteam-ai/aep-quickstart/blob/main/workshop/bootcamp.html">Bootcamp (step-by-step)</a>
-  <a href="https://github.com/aceteam-ai/aep-quickstart/blob/main/workshop/slides.html">Slides (10 slides)</a>
-  <a href="https://github.com/aceteam-ai/aep-quickstart/blob/main/workshop/script.md">Speaker Script</a>
-</div>
 
 <h2>Resources</h2>
 
@@ -182,7 +170,7 @@
 </p>
 
 <div class="footer">
-  SafeClaw by <a href="https://aceteam.ai">AceTeam</a> &middot; Open source (Apache 2.0) &middot; <a href="https://www.linkedin.com/company/aceteam-ai/">LinkedIn</a>
+  SafeClaw by <a href="https://aceteam.ai">AceTeam</a> &middot; Open source (Apache 2.0)
 </div>
 
 </div>
