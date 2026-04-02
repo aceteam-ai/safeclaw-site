@@ -3,7 +3,7 @@
 #
 # Usage: curl -fsSL https://safeclaw.sh/install.sh | sh
 #
-# Checks Docker or Python, installs AEP safety proxy.
+# Checks Podman/Docker or Python, installs AEP safety proxy.
 
 set -euo pipefail
 
@@ -20,12 +20,27 @@ echo -e "${DIM}  The safe version of OpenClaw${NC}"
 echo ""
 
 # ---------------------------------------------------------------------------
+# Detect container runtime: prefer Podman, fall back to Docker
+# ---------------------------------------------------------------------------
+CONTAINER_CMD=""
+if command -v podman &>/dev/null; then
+    CONTAINER_CMD="podman"
+elif command -v docker &>/dev/null; then
+    CONTAINER_CMD="docker"
+fi
+
+# ---------------------------------------------------------------------------
 # Interactive preference selector
 # ---------------------------------------------------------------------------
 if [ -t 0 ]; then
+    if [ -n "$CONTAINER_CMD" ]; then
+        runtime_label="$CONTAINER_CMD"
+    else
+        runtime_label="Podman/Docker"
+    fi
     echo -e "  How do you want to run SafeClaw?"
     echo ""
-    echo -e "  ${CYAN}[1]${NC} Docker ${GREEN}(recommended)${NC} — sandboxed, no access to your files"
+    echo -e "  ${CYAN}[1]${NC} Container (${runtime_label}) ${GREEN}(recommended)${NC} — sandboxed, no access to your files"
     echo -e "  ${CYAN}[2]${NC} pip install — runs on host, developer mode"
     echo -e "  ${CYAN}[3]${NC} I already have it installed"
     echo ""
@@ -33,8 +48,8 @@ if [ -t 0 ]; then
     read -r choice
     choice=${choice:-1}
 else
-    # Non-interactive (piped) — default to Docker if available, else pip
-    if command -v docker &>/dev/null; then
+    # Non-interactive (piped) — default to container if available, else pip
+    if [ -n "$CONTAINER_CMD" ]; then
         choice=1
     else
         choice=2
@@ -43,17 +58,18 @@ fi
 
 case "$choice" in
     1)
-        # Docker path
-        if ! command -v docker &>/dev/null; then
-            echo -e "  ${RED}Docker not found.${NC}"
+        # Container path
+        if [ -z "$CONTAINER_CMD" ]; then
+            echo -e "  ${RED}No container runtime found.${NC}"
             echo ""
-            echo "  Install Docker: https://docs.docker.com/get-docker/"
+            echo "  Install Podman (recommended): https://podman.io/docs/installation"
+            echo "  Or Docker Desktop: https://docs.docker.com/get-docker/"
             echo "  Or choose option 2 (pip install) instead."
             exit 1
         fi
 
-        echo -e "  ${CYAN}Pulling SafeClaw proxy image...${NC}"
-        docker pull ghcr.io/aceteam-ai/aep-proxy:latest 2>&1 | tail -3
+        echo -e "  ${CYAN}Pulling SafeClaw proxy image via ${CONTAINER_CMD}...${NC}"
+        $CONTAINER_CMD pull ghcr.io/aceteam-ai/aep-proxy:latest 2>&1 | tail -3
 
         mkdir -p "$HOME/safeclaw"
 
@@ -62,7 +78,7 @@ case "$choice" in
         echo ""
         echo -e "  ${CYAN}Start SafeClaw:${NC}"
         echo ""
-        echo "    docker run -p 8899:8899 -e OPENAI_API_KEY=\$OPENAI_API_KEY -v ~/safeclaw:/workspace ghcr.io/aceteam-ai/aep-proxy"
+        echo "    $CONTAINER_CMD run -p 8899:8899 -e OPENAI_API_KEY=\$OPENAI_API_KEY -v ~/safeclaw:/workspace ghcr.io/aceteam-ai/aep-proxy"
         echo ""
         echo -e "  ${CYAN}Dashboard:${NC}  http://localhost:8899/aep/"
         echo -e "  ${CYAN}Workspace:${NC} ~/safeclaw (the only folder your agent can see)"

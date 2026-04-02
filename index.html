@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SafeClaw — Run AI Agents Safely</title>
-<meta name="description" content="Safety proxy for AI agents. Tracks spending, blocks dangerous actions, catches data leaks. Runs in Docker. Open source.">
+<meta name="description" content="Safety proxy for AI agents. Tracks spending, blocks dangerous actions, catches data leaks. Runs in Podman or Docker. Open source.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -158,10 +158,11 @@
 <h2>Setup (5 minutes)</h2>
 
 <div class="step">
-  <div class="step-num">Step 1 — Install Docker Desktop</div>
-  <p>Docker lets SafeClaw run in an isolated container on your computer.</p>
-  <p>Download it here: <a href="https://www.docker.com/products/docker-desktop/">docker.com/products/docker-desktop</a></p>
-  <p style="font-size:13px; color:#64748b;">Available for Mac, Windows, and Linux. Follow the installer — it takes about 2 minutes. Make sure Docker Desktop is running (you'll see a whale icon in your taskbar/menu bar).</p>
+  <div class="step-num">Step 1 — Install a container runtime</div>
+  <p>SafeClaw runs in an isolated container on your computer. Install one of these:</p>
+  <p><strong>Podman</strong> (recommended) — open source, rootless by default: <a href="https://podman.io/docs/installation">podman.io/docs/installation</a></p>
+  <p><strong>Docker Desktop</strong> — also works: <a href="https://www.docker.com/products/docker-desktop/">docker.com/products/docker-desktop</a></p>
+  <p style="font-size:13px; color:#64748b;">Both are available for Mac, Windows, and Linux. Podman runs without root access, which means stronger isolation. Either one takes about 2 minutes to install.</p>
 </div>
 
 <div class="step">
@@ -175,10 +176,10 @@
   <div class="step-num">Step 3 — Start SafeClaw</div>
   <p>Paste this command and press Enter:</p>
   <div class="code">
-    <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
-    docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy
+    <button class="copy" onclick="navigator.clipboard.writeText('podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
+    podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy
   </div>
-  <p style="font-size:13px; color:#64748b;">The first time, it will download about 1 GB. After that, it starts in seconds.</p>
+  <p style="font-size:13px; color:#64748b;">Using Docker? Replace <code style="color:#38bdf8;">podman</code> with <code style="color:#38bdf8;">docker</code> — the command is identical. First run downloads about 1 GB. After that, it starts in seconds.</p>
 </div>
 
 <div class="step">
@@ -228,8 +229,8 @@
 <h2>Troubleshooting</h2>
 
 <details>
-  <summary>"docker" is not recognized / command not found</summary>
-  <div class="inner">Docker Desktop isn't installed or isn't running. Download it from <a href="https://www.docker.com/products/docker-desktop/">docker.com</a> and make sure the app is open (whale icon in your taskbar).</div>
+  <summary>"podman" or "docker" is not recognized / command not found</summary>
+  <div class="inner">Your container runtime isn't installed or isn't running. Install <a href="https://podman.io/docs/installation">Podman</a> (recommended) or <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>. If using Docker, make sure the app is open (whale icon in your taskbar).</div>
 </details>
 
 <details>
@@ -239,15 +240,15 @@
 
 <details>
   <summary>I can't open localhost:8899</summary>
-  <div class="inner">Make sure the Docker command is still running in your terminal. If it stopped, run it again. Also check that port 8899 isn't used by another app.</div>
+  <div class="inner">Make sure the <code>podman run</code> (or <code>docker run</code>) command is still running in your terminal. If it stopped, run it again. Also check that port 8899 isn't used by another app.</div>
 </details>
 
 <details>
-  <summary>I want to use pip instead of Docker</summary>
+  <summary>I want to use pip instead of containers</summary>
   <div class="inner">
     If you have Python 3.12+, you can run SafeClaw directly on your machine:<br><br>
     <code>pip install aceteam-aep[all] && aceteam-aep proxy --port 8899</code><br><br>
-    Note: this runs on your host, not in a container. The proxy will have access to your filesystem. Docker is recommended for isolation.
+    Note: this runs on your host, not in a container. The proxy will have access to your filesystem. Podman or Docker is recommended for isolation.
   </div>
 </details>
 
