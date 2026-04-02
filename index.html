@@ -4,7 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SafeClaw — Run AI Agents Safely</title>
-<meta name="description" content="Safety proxy for AI agents. Runs in Docker. Can't access your files. Open source.">
+<meta name="description" content="Safety proxy for AI agents. Tracks spending, blocks dangerous actions, catches data leaks. Runs in Docker. Open source.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "SafeClaw",
+  "description": "Safety proxy for AI agents with real-time monitoring, enforcement, and signed audit trails.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Windows, macOS, Linux",
+  "url": "https://safeclaw.sh",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "author": {
+    "@type": "Organization",
+    "name": "AceTeam",
+    "url": "https://aceteam.ai"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.7; }
@@ -19,6 +41,8 @@
 
   p { color: #94a3b8; margin-bottom: 16px; }
   p strong { color: #e2e8f0; }
+
+  .tagline { font-size: 15px; color: #64748b; margin-bottom: 24px; }
 
   .step { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 20px; margin: 16px 0; }
   .step-num { color: #38bdf8; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
@@ -52,6 +76,21 @@
   summary:hover { color: #e2e8f0; }
   details .inner { padding: 12px 0 0 0; font-size: 14px; color: #64748b; }
 
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .compare-col { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+  .compare-col.off { opacity: 0.7; }
+  .compare-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .compare-label.red { color: #f87171; }
+  .compare-label.green { color: #4ade80; }
+  .compare-col ul { padding-left: 16px; margin-bottom: 0; font-size: 14px; }
+  .compare-col li { margin-bottom: 6px; color: #94a3b8; }
+
+  .works-with { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
+  .works-with span {
+    background: #1e293b; border: 1px solid #334155; padding: 4px 10px;
+    border-radius: 5px; font-size: 12px; color: #94a3b8;
+  }
+
   .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
   .links a {
     background: #1e293b; border: 1px solid #334155; padding: 8px 14px;
@@ -64,7 +103,10 @@
     text-align: center; font-size: 13px; color: #334155;
   }
 
-  @media (max-width: 640px) { h1 { font-size: 26px; } }
+  @media (max-width: 640px) {
+    h1 { font-size: 26px; }
+    .compare { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -74,10 +116,44 @@
 <h1>SafeClaw <span style="font-size:14px;color:#475569;font-weight:400;">by AceTeam</span></h1>
 <p>
   <strong>Turn safety on for your AI agents.</strong>
-  Runs in a sandboxed container on your computer.
+  Real-time monitoring and enforcement. Runs in a sandboxed container on your computer.
   Can't access your files, email, or passwords.
-  See what your agent is doing. Block anything dangerous.
 </p>
+
+<h2>Safety Off vs. Safety On</h2>
+
+<div class="compare">
+  <div class="compare-col off">
+    <div class="compare-label red">Safety Off</div>
+    <ul>
+      <li>No spending visibility</li>
+      <li>Agent can delete files, scan ports, run exploits</li>
+      <li>Personal data can leak to any API</li>
+      <li>No record of what happened</li>
+    </ul>
+  </div>
+  <div class="compare-col">
+    <div class="compare-label green">Safety On</div>
+    <ul>
+      <li>See cost per call in real time</li>
+      <li>Dangerous actions blocked before they happen</li>
+      <li>SSNs, credit cards, and PII caught and stopped</li>
+      <li>Every decision signed and recorded</li>
+    </ul>
+  </div>
+</div>
+
+<p class="tagline">SafeClaw watches for: data leaks, unauthorized access, dangerous commands, cost spikes, and prompt injection attempts.</p>
+
+<div class="works-with">
+  <span>OpenClaw</span>
+  <span>NemoClaw</span>
+  <span>NanoClaw</span>
+  <span>CrewAI</span>
+  <span>LangChain</span>
+  <span>Claude Code</span>
+  <span>Any LLM API</span>
+</div>
 
 <h2>Setup (5 minutes)</h2>
 
@@ -112,7 +188,15 @@
 </div>
 
 <div class="note">
-  <strong>In a workshop?</strong> Your instructor may give you a URL instead. If so, you don't need to install anything — just use their URL.
+  <strong>In a workshop?</strong> Your instructor will give you a proxy URL.
+  No install needed — just point your agent to the URL and open the dashboard in your browser.
+  <br><br>
+  <strong>Example:</strong><br>
+  <div class="code" style="margin-top:8px;">
+    <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1')">Copy</button>
+    export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1
+  </div>
+  Then open <code style="color:#38bdf8;">http://INSTRUCTOR_URL:8899/aep/</code> in your browser to see the dashboard.
 </div>
 
 <h2>What Does SafeClaw Do?</h2>
@@ -121,17 +205,20 @@
   <li><strong>Tracks spending</strong> — see how much your AI agent is costing you, call by call.</li>
   <li><strong>Blocks dangerous actions</strong> — if your agent tries to scan ports, run exploit code, or access credentials, SafeClaw stops it before it happens.</li>
   <li><strong>Catches personal data leaks</strong> — if a response contains social security numbers, credit cards, or other sensitive info, it gets blocked.</li>
-  <li><strong>Creates an audit trail</strong> — every decision (allow, flag, or block) is recorded and cryptographically signed so you can prove what happened.</li>
+  <li><strong>Creates an audit trail</strong> — every decision (allow, flag, or block) is recorded and signed so you can prove what happened.</li>
 </ul>
 
-<p>Works with OpenClaw, NemoClaw, NanoClaw, CrewAI, LangChain, Claude Code, and any other AI agent that calls an LLM API.</p>
+<p style="font-size:14px; color:#64748b; margin-top:8px;">
+  SafeClaw ships with 5 detection categories: Finance, IoT, Software, Web, and Program.
+  Each can be toggled independently. Enterprise customers get custom categories and calibrated detection models.
+</p>
 
 <h2>Is This Free?</h2>
 
 <p>
   Yes. SafeClaw is <strong>open source (Apache 2.0)</strong>. You can read every line of code on
   <a href="https://github.com/aceteam-ai/safeclaw">GitHub</a>.
-  The proxy, safety detectors, dashboard, and signed verdicts are all free.
+  The proxy, safety detectors, dashboard, and signed audit trail are all free.
 </p>
 <p>
   We offer paid services for companies that need managed hosting, custom safety policies, and compliance reporting.
