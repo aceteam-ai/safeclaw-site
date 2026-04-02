@@ -252,6 +252,44 @@
   </div>
 </details>
 
+<h2>Host a Workshop</h2>
+
+<p>Anyone can run a SafeClaw workshop. Here's what you need:</p>
+
+<div class="step">
+  <div class="step-num">Instructor Setup</div>
+  <p><strong>1. Install and start the proxy</strong> on your machine (the one attendees will connect to):</p>
+  <div class="code">pip install aceteam-aep[all]<br>export OPENAI_API_KEY=sk-your-key<br>aceteam-aep proxy --port 8899 --host 0.0.0.0</div>
+  <p><strong>2. Share your URL</strong> with attendees. On the same network (WiFi):</p>
+  <div class="code">export OPENAI_BASE_URL=http://YOUR_IP:8899/v1</div>
+  <p>For remote attendees, use <a href="https://ngrok.com">ngrok</a>:</p>
+  <div class="code">ngrok http 8899</div>
+  <p><strong>3. Open the dashboard</strong> at <code>http://YOUR_IP:8899/aep/</code> — project it on screen so everyone sees calls flowing in real-time.</p>
+</div>
+
+<div class="step">
+  <div class="step-num">Attendee Setup</div>
+  <p>Attendees only need one command:</p>
+  <div class="code">export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1</div>
+  <p>Then use any tool — SafeClaw, OpenClaw, Python, curl — all LLM calls route through the safety proxy automatically.</p>
+</div>
+
+<div class="step">
+  <div class="step-num">Demo Flow (30 min)</div>
+  <p><strong>5 min</strong> — Connect to proxy, see the dashboard, make a normal call (PASS)<br>
+  <strong>5 min</strong> — Send a dangerous request → BLOCKED. Toggle safety off → same request passes. Toggle on → blocked again.<br>
+  <strong>10 min</strong> — Explore 5 safety categories: Finance, IoT, Software, Web, Program<br>
+  <strong>10 min</strong> — Set custom policies, discuss enterprise use cases</p>
+</div>
+
+<details>
+  <summary>Full workshop materials (slides, scripts, bootcamp guide)</summary>
+  <div class="inner">
+    <a href="https://github.com/aceteam-ai/aep-quickstart/tree/main/workshop">Workshop materials</a> — slides, speaker script, bootcamp guide, demo scripts.<br>
+    <a href="https://github.com/aceteam-ai/aep-quickstart/blob/main/scripts/hosted-proxy.sh">hosted-proxy.sh</a> — automated setup script for instructors.
+  </div>
+</details>
+
 <h2>Learn More</h2>
 
 <div class="links">
