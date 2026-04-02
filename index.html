@@ -185,7 +185,17 @@
 <div class="step">
   <div class="step-num">Step 4 — Open the dashboard</div>
   <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a> in your browser.</p>
-  <p>You'll see the SafeClaw dashboard. From here you can configure your API key and watch your agent's activity in real time.</p>
+  <p>The setup wizard will guide you through configuring your API key. After that, you'll see cost tracking, safety signals, and policy controls in real time.</p>
+</div>
+
+<div class="step">
+  <div class="step-num">Step 5 — Point your agent at the proxy</div>
+  <p>Add this to your terminal so your agent's LLM calls go through SafeClaw:</p>
+  <div class="code">
+    <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://localhost:8899/v1')">Copy</button>
+    export OPENAI_BASE_URL=http://localhost:8899/v1
+  </div>
+  <p style="font-size:13px; color:#64748b;">Every LLM call from any tool (OpenClaw, CrewAI, LangChain, custom scripts) now goes through SafeClaw automatically.</p>
 </div>
 
 <div class="note">
@@ -197,7 +207,31 @@
     <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1')">Copy</button>
     export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1
   </div>
-  Then open <code style="color:#38bdf8;">http://INSTRUCTOR_URL:8899/aep/</code> in your browser to see the dashboard.
+  <p style="font-size:12px; color:#64748b; margin-top:4px;">Replace <code style="color:#38bdf8;">INSTRUCTOR_URL</code> with the address your instructor provides.</p>
+</div>
+
+<h2>Claude Code Integration</h2>
+
+<p>SafeClaw provides safety tools directly inside Claude Code via MCP. Add this to your Claude Code config:</p>
+
+<div class="code">
+  <button class="copy" onclick="navigator.clipboard.writeText('{&quot;mcpServers&quot;:{&quot;aceteam&quot;:{&quot;type&quot;:&quot;streamable-http&quot;,&quot;url&quot;:&quot;http://localhost:8899/mcp/&quot;}}}')">Copy</button>
+  {"mcpServers":{"aceteam":{"type":"streamable-http","url":"http://localhost:8899/mcp/"}}}
+</div>
+
+<p style="font-size:14px; color:#64748b;">
+  Claude Code gets 4 safety tools: <strong>check_safety</strong> (scan text for threats),
+  <strong>get_safety_status</strong> (session metrics), <strong>set_safety_policy</strong> (toggle detectors),
+  and <strong>get_cost_summary</strong> (spending breakdown).
+</p>
+
+<div class="note">
+  <strong>Quick setup:</strong> If you have Python 3.12+, you can skip the manual config:
+  <div class="code" style="margin-top:8px;">
+    <button class="copy" onclick="navigator.clipboard.writeText('pip install aceteam-aep[all] && aceteam-aep setup')">Copy</button>
+    pip install aceteam-aep[all] && aceteam-aep setup
+  </div>
+  <p style="font-size:12px; color:#64748b; margin-top:4px;">This detects your container runtime, starts the proxy, configures Claude Code, and opens the dashboard — all in one command.</p>
 </div>
 
 <h2>What Does SafeClaw Do?</h2>
@@ -224,6 +258,11 @@
 <p>
   We offer paid services for companies that need managed hosting, custom safety policies, and compliance reporting.
   The open source version is the full product, not a limited trial.
+</p>
+<p>
+  <strong>Want to try AceTeam?</strong> Free accounts get <strong>$5 of LLM credit</strong> and access to
+  40+ workflow node types. Connect from the dashboard or run
+  <code style="color:#38bdf8;">aceteam-aep connect</code>.
 </p>
 
 <h2>Troubleshooting</h2>
