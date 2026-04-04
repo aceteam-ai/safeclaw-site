@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SafeClaw — Run AI Agents Safely</title>
-<meta name="description" content="Safety proxy for AI agents. Tracks spending, blocks dangerous actions, catches data leaks. Runs in Podman or Docker. Open source.">
+<title>SafeClaw — Safety for AI Agents</title>
+<meta name="description" content="Turn safety on for AI agents. Track spending, block dangerous actions, catch data leaks. Free and open source by AceTeam.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -15,16 +15,8 @@
   "operatingSystem": "Windows, macOS, Linux",
   "url": "https://safeclaw.sh",
   "license": "https://www.apache.org/licenses/LICENSE-2.0",
-  "author": {
-    "@type": "Organization",
-    "name": "AceTeam",
-    "url": "https://aceteam.ai"
-  },
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  }
+  "author": { "@type": "Organization", "name": "AceTeam", "url": "https://aceteam.ai" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 }
 </script>
 <style>
@@ -32,50 +24,26 @@
   body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.7; }
   a { color: #38bdf8; text-decoration: none; }
   a:hover { text-decoration: underline; }
-
-  .container { max-width: 640px; margin: 0 auto; padding: 48px 24px; }
-
-  h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .container { max-width: 680px; margin: 0 auto; padding: 48px 24px; }
+  h1 { font-size: 36px; font-weight: 700; margin-bottom: 12px; }
   h2 { font-size: 20px; font-weight: 600; color: #94a3b8; margin: 40px 0 16px; padding-top: 24px; border-top: 1px solid #1e293b; }
   h2:first-of-type { border-top: none; margin-top: 32px; }
-
   p { color: #94a3b8; margin-bottom: 16px; }
   p strong { color: #e2e8f0; }
-
-  .tagline { font-size: 15px; color: #64748b; margin-bottom: 24px; }
-
-  .step { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 20px; margin: 16px 0; }
-  .step-num { color: #38bdf8; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .step p { margin-bottom: 8px; }
-  .step p:last-child { margin-bottom: 0; }
-
-  .code {
-    background: #0f172a; border: 1px solid #334155; border-radius: 6px;
-    padding: 12px 16px; font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
-    font-size: 14px; color: #38bdf8; margin: 10px 0; overflow-x: auto;
-    position: relative; word-break: break-all;
-  }
-  .code .copy {
-    position: absolute; top: 6px; right: 6px;
-    background: #334155; border: none; color: #94a3b8; padding: 3px 8px;
-    border-radius: 4px; font-size: 11px; cursor: pointer; font-family: inherit;
-  }
-  .code .copy:hover { background: #475569; color: #e2e8f0; }
-
-  ul { color: #94a3b8; padding-left: 20px; margin-bottom: 16px; }
-  li { margin-bottom: 8px; }
-  li strong { color: #e2e8f0; }
-
-  .note {
-    background: #1e293b; border-left: 3px solid #38bdf8; border-radius: 0 8px 8px 0;
-    padding: 14px 18px; font-size: 14px; color: #94a3b8; margin: 20px 0;
-  }
-
-  details { margin: 12px 0; }
-  summary { cursor: pointer; color: #94a3b8; font-size: 14px; }
-  summary:hover { color: #e2e8f0; }
-  details .inner { padding: 12px 0 0 0; font-size: 14px; color: #64748b; }
-
+  .subtitle { font-size: 18px; color: #94a3b8; margin-bottom: 32px; line-height: 1.6; }
+  .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0; }
+  .path { background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 24px; text-align: center; transition: border-color 0.2s; }
+  .path:hover { border-color: #38bdf8; }
+  .path-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .path h3 { font-size: 18px; color: #e2e8f0; margin-bottom: 8px; }
+  .path p { font-size: 14px; color: #94a3b8; margin-bottom: 16px; }
+  .path-btn { display: inline-block; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; }
+  .path-btn:hover { text-decoration: none; }
+  .btn-primary { background: #334155; color: #94a3b8; cursor: default; }
+  .btn-secondary { background: transparent; border: 1px solid #38bdf8; color: #38bdf8; }
+  .btn-secondary:hover { background: #1e293b; }
+  .path-note { font-size: 12px; color: #64748b; margin-top: 8px; }
+  .coming-soon { display: inline-block; background: #334155; color: #94a3b8; padding: 2px 8px; border-radius: 3px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
   .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
   .compare-col { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
   .compare-col.off { opacity: 0.7; }
@@ -84,47 +52,73 @@
   .compare-label.green { color: #4ade80; }
   .compare-col ul { padding-left: 16px; margin-bottom: 0; font-size: 14px; }
   .compare-col li { margin-bottom: 6px; color: #94a3b8; }
-
-  .works-with { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
-  .works-with span {
-    background: #1e293b; border: 1px solid #334155; padding: 4px 10px;
-    border-radius: 5px; font-size: 12px; color: #94a3b8;
-  }
-
+  .works-with { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; justify-content: center; }
+  .works-with span { background: #1e293b; border: 1px solid #334155; padding: 4px 10px; border-radius: 5px; font-size: 12px; color: #94a3b8; }
+  .step { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 20px; margin: 16px 0; }
+  .step-num { color: #38bdf8; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .step p { margin-bottom: 8px; }
+  .step p:last-child { margin-bottom: 0; }
+  .code { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 12px 16px; font-family: 'SF Mono', 'Fira Code', Consolas, monospace; font-size: 14px; color: #38bdf8; margin: 10px 0; overflow-x: auto; position: relative; word-break: break-all; }
+  .code .copy { position: absolute; top: 6px; right: 6px; background: #334155; border: none; color: #94a3b8; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-family: inherit; }
+  .code .copy:hover { background: #475569; color: #e2e8f0; }
+  ul { color: #94a3b8; padding-left: 20px; margin-bottom: 16px; }
+  li { margin-bottom: 8px; }
+  li strong { color: #e2e8f0; }
+  .note { background: #1e293b; border-left: 3px solid #38bdf8; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 14px; color: #94a3b8; margin: 20px 0; }
+  details { margin: 12px 0; }
+  summary { cursor: pointer; color: #94a3b8; font-size: 14px; }
+  summary:hover { color: #e2e8f0; }
+  details .inner { padding: 12px 0 0 0; font-size: 14px; color: #64748b; }
   .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
-  .links a {
-    background: #1e293b; border: 1px solid #334155; padding: 8px 14px;
-    border-radius: 6px; font-size: 13px; color: #e2e8f0;
-  }
+  .links a { background: #1e293b; border: 1px solid #334155; padding: 8px 14px; border-radius: 6px; font-size: 13px; color: #e2e8f0; }
   .links a:hover { background: #334155; text-decoration: none; }
-
-  .footer {
-    margin-top: 48px; padding-top: 24px; border-top: 1px solid #1e293b;
-    text-align: center; font-size: 13px; color: #334155;
-  }
-
-  @media (max-width: 640px) {
-    h1 { font-size: 26px; }
-    .compare { grid-template-columns: 1fr; }
-  }
+  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #1e293b; text-align: center; font-size: 13px; color: #475569; }
+  .aceteam-badge { display: inline-flex; align-items: center; gap: 6px; background: #1e293b; border: 1px solid #334155; padding: 6px 14px; border-radius: 6px; font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+  .aceteam-badge:hover { border-color: #38bdf8; text-decoration: none; }
+  .waitlist-form { display: flex; gap: 8px; margin-top: 12px; }
+  .waitlist-input { flex: 1; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-family: inherit; }
+  .waitlist-input:focus { border-color: #38bdf8; outline: none; }
+  .waitlist-btn { background: #38bdf8; color: #0f172a; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .waitlist-btn:hover { background: #7dd3fc; }
+  @media (max-width: 640px) { h1 { font-size: 28px; } .paths { grid-template-columns: 1fr; } .compare { grid-template-columns: 1fr; } .waitlist-form { flex-direction: column; } }
 </style>
 </head>
 <body>
 
 <div class="container">
 
-<h1>SafeClaw <span style="font-size:14px;color:#475569;font-weight:400;">by AceTeam</span></h1>
-<p>
-  <strong>Turn safety on for your AI agents.</strong>
-  Real-time monitoring and enforcement. Runs in a sandboxed container on your computer.
-  Can't access your files, email, or passwords.
+<a href="https://aceteam.ai" class="aceteam-badge">by AceTeam &mdash; safety infrastructure for AI agents</a>
+
+<h1>SafeClaw</h1>
+<p class="subtitle">
+  Your AI agent just spent $135K. Deleted an inbox. Leaked a credit card number.<br>
+  <strong>Turn safety on.</strong>
 </p>
 
-<h2>Safety Off vs. Safety On</h2>
+<div class="paths">
+  <div class="path">
+    <div class="path-label"><span class="coming-soon">Coming Soon</span></div>
+    <h3>Hosted</h3>
+    <p>Sign up, get $5 free credit. No install needed.</p>
+    <span class="path-btn btn-primary">Join Waitlist</span>
+    <form class="waitlist-form" onsubmit="submitWaitlist(event)">
+      <input class="waitlist-input" type="email" placeholder="you@company.com" required id="waitlist-email">
+      <button class="waitlist-btn" type="submit">Notify Me</button>
+    </form>
+    <div class="path-note" id="waitlist-status"></div>
+  </div>
+  <div class="path">
+    <div class="path-label">Available now</div>
+    <h3>Self-Host</h3>
+    <p>Run on your machine. Free, open source, your keys.</p>
+    <a href="#self-host" class="path-btn btn-secondary" onclick="document.getElementById('self-host').scrollIntoView({behavior:'smooth'});return false;">Setup Guide</a>
+    <div class="path-note">Apache 2.0. Podman or Docker.</div>
+  </div>
+</div>
 
 <div class="compare">
   <div class="compare-col off">
-    <div class="compare-label red">Safety Off</div>
+    <div class="compare-label red">Without SafeClaw</div>
     <ul>
       <li>No spending visibility</li>
       <li>Agent can delete files, scan ports, run exploits</li>
@@ -133,76 +127,83 @@
     </ul>
   </div>
   <div class="compare-col">
-    <div class="compare-label green">Safety On</div>
+    <div class="compare-label green">With SafeClaw</div>
     <ul>
-      <li>See cost per call in real time</li>
+      <li>Cost per call in real time</li>
       <li>Dangerous actions blocked before they happen</li>
       <li>SSNs, credit cards, and PII caught and stopped</li>
-      <li>Every decision signed and recorded</li>
+      <li>Every decision signed and auditable</li>
     </ul>
   </div>
 </div>
 
-<p class="tagline">SafeClaw watches for: data leaks, unauthorized access, dangerous commands, cost spikes, and prompt injection attempts.</p>
-
 <div class="works-with">
+  <span>Claude Code</span>
   <span>OpenClaw</span>
-  <span>NemoClaw</span>
-  <span>NanoClaw</span>
   <span>CrewAI</span>
   <span>LangChain</span>
-  <span>Claude Code</span>
+  <span>NemoClaw</span>
+  <span>NanoClaw</span>
   <span>Any LLM API</span>
 </div>
 
-<h2>Setup (5 minutes)</h2>
+<h2>How It Works</h2>
 
-<div class="step">
-  <div class="step-num">Step 1 — Install a container runtime</div>
-  <p>SafeClaw runs in an isolated container on your computer. Install one of these:</p>
-  <p><strong>Podman</strong> (recommended) — open source, rootless by default: <a href="https://podman.io/docs/installation">podman.io/docs/installation</a></p>
-  <p><strong>Docker Desktop</strong> — also works: <a href="https://www.docker.com/products/docker-desktop/">docker.com/products/docker-desktop</a></p>
-  <p style="font-size:13px; color:#64748b;">Both are available for Mac, Windows, and Linux. Podman runs without root access, which means stronger isolation. Either one takes about 2 minutes to install.</p>
+<p>SafeClaw sits between your agent and the LLM. Every call is checked before it reaches the model. Dangerous requests are blocked. Everything is logged.</p>
+
+<ul>
+  <li><strong>5 safety categories</strong> &mdash; Finance, IoT, Software, Web, Program. Toggle each from the dashboard.</li>
+  <li><strong>Confidence scores</strong> &mdash; not just block/pass. "82% confident this is a financial risk." Human review for borderline cases.</li>
+  <li><strong>Learns from your team</strong> &mdash; deny a flagged action once, similar actions get caught automatically.</li>
+  <li><strong>Signed audit trail</strong> &mdash; Ed25519 signatures, Merkle chain. Tamper-proof compliance.</li>
+</ul>
+
+<h2>Works with Claude Code</h2>
+
+<p>One line in your config gives Claude Code 4 safety tools:</p>
+
+<div class="code">
+  <button class="copy" onclick="navigator.clipboard.writeText('{&quot;mcpServers&quot;:{&quot;aceteam&quot;:{&quot;type&quot;:&quot;streamable-http&quot;,&quot;url&quot;:&quot;http://localhost:8899/mcp/&quot;}}}')">Copy</button>
+  {"mcpServers":{"aceteam":{"type":"streamable-http","url":"http://localhost:8899/mcp/"}}}
 </div>
 
-<div class="step">
-  <div class="step-num">Step 2 — Open a terminal</div>
-  <p><strong>Mac:</strong> Open the app called <strong>Terminal</strong> (search for it in Spotlight with Cmd+Space).</p>
-  <p><strong>Windows:</strong> Open <strong>PowerShell</strong> (search for it in the Start menu).</p>
-  <p><strong>Linux:</strong> Open your terminal emulator.</p>
-</div>
+<p style="font-size:13px; color:#64748b;">Or run <code style="color:#38bdf8;">aceteam-aep setup</code> to auto-detect and configure.</p>
+
+<h2 id="self-host">Self-Host Setup</h2>
 
 <div class="step">
-  <div class="step-num">Step 3 — Start SafeClaw</div>
-  <p>Paste this command and press Enter:</p>
+  <div class="step-num">1 &mdash; Start SafeClaw</div>
   <div class="code">
     <button class="copy" onclick="navigator.clipboard.writeText('podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
     podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy
   </div>
-  <p style="font-size:13px; color:#64748b;">Using Docker? Replace <code style="color:#38bdf8;">podman</code> with <code style="color:#38bdf8;">docker</code> — the command is identical. First run downloads about 1 GB. After that, it starts in seconds.</p>
+  <p style="font-size:13px; color:#64748b;">Using Docker? Replace <code style="color:#38bdf8;">podman</code> with <code style="color:#38bdf8;">docker</code>. First run downloads ~1 GB, then starts in seconds.</p>
 </div>
 
 <div class="step">
-  <div class="step-num">Step 4 — Open the dashboard</div>
-  <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a> in your browser.</p>
-  <p>The setup wizard will guide you through configuring your API key. After that, you'll see cost tracking, safety signals, and policy controls in real time.</p>
+  <div class="step-num">2 &mdash; Open the dashboard</div>
+  <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a>. The setup wizard guides you through adding your API key.</p>
 </div>
 
 <div class="step">
-  <div class="step-num">Step 5 — Point your agent at the proxy</div>
-  <p>Add this to your terminal so your agent's LLM calls go through SafeClaw:</p>
+  <div class="step-num">3 &mdash; Point your agent</div>
   <div class="code">
     <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://localhost:8899/v1')">Copy</button>
     export OPENAI_BASE_URL=http://localhost:8899/v1
   </div>
-  <p style="font-size:13px; color:#64748b;">Every LLM call from any tool (OpenClaw, CrewAI, LangChain, custom scripts) now goes through SafeClaw automatically.</p>
+  <p style="font-size:13px; color:#64748b;">Every LLM call from any tool now goes through SafeClaw.</p>
 </div>
 
+<details>
+  <summary>Alternative: pip install (no container)</summary>
+  <div class="inner">
+    <code>pip install aceteam-aep[all] && aceteam-aep setup</code><br><br>
+    Auto-detects your runtime, starts the proxy, configures Claude Code, and opens the dashboard.
+  </div>
+</details>
+
 <div class="note">
-  <strong>In a workshop?</strong> Your instructor will give you a proxy URL.
-  No install needed — just point your agent to the URL and open the dashboard in your browser.
-  <br><br>
-  <strong>Example:</strong><br>
+  <strong>In a workshop?</strong> Your instructor will give you a URL. Just run:
   <div class="code" style="margin-top:8px;">
     <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1')">Copy</button>
     export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1
@@ -210,122 +211,44 @@
   <p style="font-size:12px; color:#64748b; margin-top:4px;">Replace <code style="color:#38bdf8;">INSTRUCTOR_URL</code> with the address your instructor provides.</p>
 </div>
 
-<h2>Claude Code Integration</h2>
+<h2>Pricing</h2>
 
-<p>SafeClaw provides safety tools directly inside Claude Code via MCP. Add this to your Claude Code config:</p>
-
-<div class="code">
-  <button class="copy" onclick="navigator.clipboard.writeText('{&quot;mcpServers&quot;:{&quot;aceteam&quot;:{&quot;type&quot;:&quot;streamable-http&quot;,&quot;url&quot;:&quot;http://localhost:8899/mcp/&quot;}}}')">Copy</button>
-  {"mcpServers":{"aceteam":{"type":"streamable-http","url":"http://localhost:8899/mcp/"}}}
-</div>
-
-<p style="font-size:14px; color:#64748b;">
-  Claude Code gets 4 safety tools: <strong>check_safety</strong> (scan text for threats),
-  <strong>get_safety_status</strong> (session metrics), <strong>set_safety_policy</strong> (toggle detectors),
-  and <strong>get_cost_summary</strong> (spending breakdown).
-</p>
-
-<div class="note">
-  <strong>Quick setup:</strong> If you have Python 3.12+, you can skip the manual config:
-  <div class="code" style="margin-top:8px;">
-    <button class="copy" onclick="navigator.clipboard.writeText('pip install aceteam-aep[all] && aceteam-aep setup')">Copy</button>
-    pip install aceteam-aep[all] && aceteam-aep setup
+<div class="compare">
+  <div class="compare-col">
+    <div class="compare-label" style="color:#38bdf8;">Free (Self-Host)</div>
+    <ul>
+      <li>Full proxy, dashboard, MCP tools</li>
+      <li>Regex + basic safety detectors</li>
+      <li>Signed audit trail</li>
+      <li>Open source (Apache 2.0)</li>
+    </ul>
   </div>
-  <p style="font-size:12px; color:#64748b; margin-top:4px;">This detects your container runtime, starts the proxy, configures Claude Code, and opens the dashboard — all in one command.</p>
+  <div class="compare-col">
+    <div class="compare-label" style="color:#4ade80;">AceTeam <span class="coming-soon">Coming Soon</span></div>
+    <ul>
+      <li>Hosted &mdash; no install needed</li>
+      <li>$5 free LLM credit on signup</li>
+      <li>Calibrated Trust Engine detection</li>
+      <li>Workflows, team sharing, compliance</li>
+    </ul>
+  </div>
 </div>
 
-<h2>What Does SafeClaw Do?</h2>
-
-<ul>
-  <li><strong>Tracks spending</strong> — see how much your AI agent is costing you, call by call.</li>
-  <li><strong>Blocks dangerous actions</strong> — if your agent tries to scan ports, run exploit code, or access credentials, SafeClaw stops it before it happens.</li>
-  <li><strong>Catches personal data leaks</strong> — if a response contains social security numbers, credit cards, or other sensitive info, it gets blocked.</li>
-  <li><strong>Creates an audit trail</strong> — every decision (allow, flag, or block) is recorded and signed so you can prove what happened.</li>
-</ul>
-
-<p style="font-size:14px; color:#64748b; margin-top:8px;">
-  SafeClaw ships with 5 detection categories: Finance, IoT, Software, Web, and Program.
-  Each can be toggled independently. Enterprise customers get custom categories and calibrated detection models.
-</p>
-
-<h2>Is This Free?</h2>
-
-<p>
-  Yes. SafeClaw is <strong>open source (Apache 2.0)</strong>. You can read every line of code on
-  <a href="https://github.com/aceteam-ai/safeclaw">GitHub</a>.
-  The proxy, safety detectors, dashboard, and signed audit trail are all free.
-</p>
-<p>
-  We offer paid services for companies that need managed hosting, custom safety policies, and compliance reporting.
-  The open source version is the full product, not a limited trial.
-</p>
-<p>
-  <strong>Want to try AceTeam?</strong> Free accounts get <strong>$5 of LLM credit</strong> and access to
-  40+ workflow node types. Connect from the dashboard or run
-  <code style="color:#38bdf8;">aceteam-aep connect</code>.
-</p>
-
-<h2>Troubleshooting</h2>
-
 <details>
-  <summary>"podman" or "docker" is not recognized / command not found</summary>
-  <div class="inner">Your container runtime isn't installed or isn't running. Install <a href="https://podman.io/docs/installation">Podman</a> (recommended) or <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>. If using Docker, make sure the app is open (whale icon in your taskbar).</div>
-</details>
-
-<details>
-  <summary>The download is very slow</summary>
-  <div class="inner">The first download is about 1 GB. This is a one-time thing — after that, SafeClaw starts in seconds. If you're on slow WiFi, try a wired connection or hotspot.</div>
-</details>
-
-<details>
-  <summary>I can't open localhost:8899</summary>
-  <div class="inner">Make sure the <code>podman run</code> (or <code>docker run</code>) command is still running in your terminal. If it stopped, run it again. Also check that port 8899 isn't used by another app.</div>
-</details>
-
-<details>
-  <summary>I want to use pip instead of containers</summary>
+  <summary>Host a SafeClaw Workshop</summary>
   <div class="inner">
-    If you have Python 3.12+, you can run SafeClaw directly on your machine:<br><br>
-    <code>pip install aceteam-aep[all] && aceteam-aep proxy --port 8899</code><br><br>
-    Note: this runs on your host, not in a container. The proxy will have access to your filesystem. Podman or Docker is recommended for isolation.
+    <p><strong>Instructor:</strong> <code>aceteam-aep proxy --port 8899 --host 0.0.0.0</code>, share your IP or use <a href="https://ngrok.com">ngrok</a>.</p>
+    <p><strong>Attendees:</strong> One command: <code>export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1</code></p>
+    <p><strong>Materials:</strong> <a href="https://github.com/aceteam-ai/aep-quickstart/tree/main/workshop">Slides, bootcamp, demo scripts</a></p>
   </div>
 </details>
 
-<h2>Host a Workshop</h2>
-
-<p>Anyone can run a SafeClaw workshop. Here's what you need:</p>
-
-<div class="step">
-  <div class="step-num">Instructor Setup</div>
-  <p><strong>1. Install and start the proxy</strong> on your machine (the one attendees will connect to):</p>
-  <div class="code">pip install aceteam-aep[all]<br>export OPENAI_API_KEY=sk-your-key<br>aceteam-aep proxy --port 8899 --host 0.0.0.0</div>
-  <p><strong>2. Share your URL</strong> with attendees. On the same network (WiFi):</p>
-  <div class="code">export OPENAI_BASE_URL=http://YOUR_IP:8899/v1</div>
-  <p>For remote attendees, use <a href="https://ngrok.com">ngrok</a>:</p>
-  <div class="code">ngrok http 8899</div>
-  <p><strong>3. Open the dashboard</strong> at <code>http://YOUR_IP:8899/aep/</code> — project it on screen so everyone sees calls flowing in real-time.</p>
-</div>
-
-<div class="step">
-  <div class="step-num">Attendee Setup</div>
-  <p>Attendees only need one command:</p>
-  <div class="code">export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1</div>
-  <p>Then use any tool — SafeClaw, OpenClaw, Python, curl — all LLM calls route through the safety proxy automatically.</p>
-</div>
-
-<div class="step">
-  <div class="step-num">Demo Flow (30 min)</div>
-  <p><strong>5 min</strong> — Connect to proxy, see the dashboard, make a normal call (PASS)<br>
-  <strong>5 min</strong> — Send a dangerous request → BLOCKED. Toggle safety off → same request passes. Toggle on → blocked again.<br>
-  <strong>10 min</strong> — Explore 5 safety categories: Finance, IoT, Software, Web, Program<br>
-  <strong>10 min</strong> — Set custom policies, discuss enterprise use cases</p>
-</div>
-
 <details>
-  <summary>Full workshop materials (slides, scripts, bootcamp guide)</summary>
+  <summary>Troubleshooting</summary>
   <div class="inner">
-    <a href="https://github.com/aceteam-ai/aep-quickstart/tree/main/workshop">Workshop materials</a> — slides, speaker script, bootcamp guide, demo scripts.<br>
-    <a href="https://github.com/aceteam-ai/aep-quickstart/blob/main/scripts/hosted-proxy.sh">hosted-proxy.sh</a> — automated setup script for instructors.
+    <p><strong>"podman" or "docker" not found:</strong> Install <a href="https://podman.io/docs/installation">Podman</a> or <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>.</p>
+    <p><strong>Can't open localhost:8899:</strong> Make sure the run command is still active.</p>
+    <p><strong>Slow first download:</strong> ~1 GB one-time, then starts in seconds.</p>
   </div>
 </details>
 
@@ -335,13 +258,25 @@
   <a href="https://github.com/aceteam-ai/safeclaw">GitHub</a>
   <a href="https://github.com/aceteam-ai/aceteam-aep">AEP Protocol</a>
   <a href="https://pypi.org/project/aceteam-aep/">PyPI</a>
-  <a href="https://aceteam.ai">AceTeam</a>
+  <a href="https://aceteam.ai">AceTeam Platform</a>
 </div>
 
 <div class="footer">
-  SafeClaw by <a href="https://aceteam.ai">AceTeam</a> &middot; Open source (Apache 2.0)
+  SafeClaw by <a href="https://aceteam.ai">AceTeam</a> &middot; Open source (Apache 2.0) &middot; <a href="mailto:jason@aceteam.ai">Contact</a>
 </div>
 
 </div>
+
+<script>
+function submitWaitlist(e) {
+  e.preventDefault();
+  var email = document.getElementById('waitlist-email').value;
+  var status = document.getElementById('waitlist-status');
+  // For now, just show confirmation. Replace with actual endpoint later.
+  status.textContent = 'Thanks! We will notify ' + email + ' when hosted SafeClaw launches.';
+  status.style.color = '#4ade80';
+  document.getElementById('waitlist-email').value = '';
+}
+</script>
 </body>
 </html>
