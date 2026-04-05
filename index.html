@@ -39,7 +39,6 @@
   .path p { font-size: 14px; color: #94a3b8; margin-bottom: 16px; }
   .path-btn { display: inline-block; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; }
   .path-btn:hover { text-decoration: none; }
-  .btn-primary { background: #334155; color: #94a3b8; cursor: default; }
   .btn-secondary { background: transparent; border: 1px solid #38bdf8; color: #38bdf8; }
   .btn-secondary:hover { background: #1e293b; }
   .path-note { font-size: 12px; color: #64748b; margin-top: 8px; }
@@ -75,12 +74,7 @@
   .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #1e293b; text-align: center; font-size: 13px; color: #475569; }
   .aceteam-badge { display: inline-flex; align-items: center; gap: 6px; background: #1e293b; border: 1px solid #334155; padding: 6px 14px; border-radius: 6px; font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
   .aceteam-badge:hover { border-color: #38bdf8; text-decoration: none; }
-  .waitlist-form { display: flex; gap: 8px; margin-top: 12px; }
-  .waitlist-input { flex: 1; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-family: inherit; }
-  .waitlist-input:focus { border-color: #38bdf8; outline: none; }
-  .waitlist-btn { background: #38bdf8; color: #0f172a; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
-  .waitlist-btn:hover { background: #7dd3fc; }
-  @media (max-width: 640px) { h1 { font-size: 28px; } .paths { grid-template-columns: 1fr; } .compare { grid-template-columns: 1fr; } .waitlist-form { flex-direction: column; } }
+  @media (max-width: 640px) { h1 { font-size: 28px; } .paths { grid-template-columns: 1fr; } .compare { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -97,15 +91,11 @@
 
 <div class="paths">
   <div class="path">
-    <div class="path-label"><span class="coming-soon">Coming Soon</span></div>
+    <div class="path-label">Available now</div>
     <h3>Hosted</h3>
-    <p>Sign up, get $50 free credit. No install needed.</p>
-    <span class="path-btn btn-primary">Join Waitlist</span>
-    <form class="waitlist-form" onsubmit="submitWaitlist(event)">
-      <input class="waitlist-input" type="email" placeholder="you@company.com" required id="waitlist-email">
-      <button class="waitlist-btn" type="submit">Notify Me</button>
-    </form>
-    <div class="path-note" id="waitlist-status"></div>
+    <p>Zero setup. We run the proxy for you.</p>
+    <a href="https://aceteam.ai/signup?ref=safeclaw" class="path-btn btn-secondary">Get Started Free</a>
+    <div class="path-note">Sign up, get $1 free credit. No install needed.</div>
   </div>
   <div class="path">
     <div class="path-label">Available now</div>
@@ -224,10 +214,10 @@
     </ul>
   </div>
   <div class="compare-col">
-    <div class="compare-label" style="color:#4ade80;">AceTeam <span class="coming-soon">Coming Soon</span></div>
+    <div class="compare-label" style="color:#4ade80;">AceTeam Hosted</div>
     <ul>
       <li>Hosted &mdash; no install needed</li>
-      <li>$50 free LLM credit on signup</li>
+      <li>$1 free LLM credit on signup</li>
       <li>Calibrated Trust Engine detection</li>
       <li>Workflows, team sharing, compliance</li>
     </ul>
@@ -267,16 +257,5 @@
 
 </div>
 
-<script>
-function submitWaitlist(e) {
-  e.preventDefault();
-  var email = document.getElementById('waitlist-email').value;
-  var status = document.getElementById('waitlist-status');
-  // For now, just show confirmation. Replace with actual endpoint later.
-  status.textContent = 'Thanks! We will notify ' + email + ' when hosted SafeClaw launches.';
-  status.style.color = '#4ade80';
-  document.getElementById('waitlist-email').value = '';
-}
-</script>
 </body>
 </html>
