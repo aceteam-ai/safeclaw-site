@@ -109,9 +109,9 @@
   <div class="path">
     <div class="path-label">Available now</div>
     <h3>Self-Host</h3>
-    <p>Run on your machine. Free, open source, your keys.</p>
+    <p>Your data never leaves your machine. $0 forever.</p>
     <a href="#self-host" class="path-btn btn-secondary" onclick="document.getElementById('self-host').scrollIntoView({behavior:'smooth'});return false;">Setup Guide</a>
-    <div class="path-note">Apache 2.0. Podman or Docker.</div>
+    <div class="path-note">Your keys, your hardware. Apache 2.0.</div>
   </div>
 </div>
 
@@ -170,6 +170,10 @@
 
 <h2 id="self-host">Self-Host Setup</h2>
 
+<div class="note" style="margin-bottom:24px;">
+  <strong>Why self-host?</strong> Your data stays on your machine &mdash; LLM calls go from your agent through the local proxy to the provider. Nothing touches our servers. You use your own API keys, so it costs $0 beyond what you already pay your LLM provider. The proxy runs as a local container &mdash; sandboxed, isolated, and safe even on your personal machine.
+</div>
+
 <div class="step">
   <div class="step-num">1 &mdash; Start SafeClaw</div>
   <div class="code">
@@ -181,7 +185,7 @@
 
 <div class="step">
   <div class="step-num">2 &mdash; Open the dashboard</div>
-  <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a>. The setup wizard guides you through adding your API key.</p>
+  <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a>. The setup wizard walks you through adding your OpenAI or Anthropic API key. The key is stored locally &mdash; it never leaves your machine.</p>
 </div>
 
 <div class="step">
@@ -190,16 +194,46 @@
     <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://localhost:8899/v1')">Copy</button>
     export OPENAI_BASE_URL=http://localhost:8899/v1
   </div>
-  <p style="font-size:13px; color:#64748b;">Every LLM call from any tool now goes through SafeClaw.</p>
+  <p style="font-size:13px; color:#64748b;">Every LLM call from any tool (Claude Code, OpenClaw, CrewAI, LangChain) now routes through SafeClaw before reaching the provider.</p>
+</div>
+
+<div class="step">
+  <div class="step-num">4 &mdash; Try a prompt</div>
+  <p>Ask your agent anything. Then check <a href="http://localhost:8899/aep/" target="_blank"><strong>the dashboard</strong></a> &mdash; you'll see the cost, safety verdict, and a full audit trail of every call.</p>
+  <p style="font-size:13px; color:#64748b;">Scroll down to the <a href="#try-it" style="color:#38bdf8;">Try It</a> section for demo scenarios you can run right now.</p>
 </div>
 
 <details>
   <summary>Alternative: pip install (no container)</summary>
   <div class="inner">
-    <code>pip install aceteam-aep[all] && aceteam-aep setup</code><br><br>
-    Auto-detects your runtime, starts the proxy, configures Claude Code, and opens the dashboard.
+    <div class="code" style="margin-bottom:8px;">
+      <button class="copy" onclick="navigator.clipboard.writeText('pip install aceteam-aep[all] && aceteam-aep setup')">Copy</button>
+      pip install aceteam-aep[all] && aceteam-aep setup
+    </div>
+    Auto-detects your runtime (Docker/Podman), starts the proxy, writes <code style="color:#38bdf8;">OPENAI_BASE_URL</code> to your shell profile, configures Claude Code MCP, and opens the dashboard. One command, everything set up.
   </div>
 </details>
+
+<div class="compare" style="margin-top:24px;">
+  <div class="compare-col">
+    <div class="compare-label" style="color:#38bdf8;">Self-Host</div>
+    <ul>
+      <li>Data stays on your machine</li>
+      <li>Your own API keys &mdash; $0 extra cost</li>
+      <li>Full dashboard at localhost</li>
+      <li>Works offline (once container is pulled)</li>
+    </ul>
+  </div>
+  <div class="compare-col">
+    <div class="compare-label" style="color:#4ade80;">Hosted (AceClaw)</div>
+    <ul>
+      <li>No install, no Docker needed</li>
+      <li>We provide the API keys</li>
+      <li>Dashboard at aceteam.ai/gateway</li>
+      <li>Team sharing and admin view</li>
+    </ul>
+  </div>
+</div>
 
 <div class="note">
   <strong>In a workshop?</strong>
@@ -217,7 +251,7 @@
   <p style="font-size:12px; color:#64748b; margin-top:4px;">Replace <code style="color:#38bdf8;">INSTRUCTOR_URL</code> with the address your instructor provides.</p>
 </div>
 
-<h2>Try It &mdash; Demo Scenarios</h2>
+<h2 id="try-it">Try It &mdash; Demo Scenarios</h2>
 
 <p>Once you're connected through SafeClaw, try these exercises to see safety and cost tracking in action.</p>
 
