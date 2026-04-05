@@ -74,7 +74,16 @@
   .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #1e293b; text-align: center; font-size: 13px; color: #475569; }
   .aceteam-badge { display: inline-flex; align-items: center; gap: 6px; background: #1e293b; border: 1px solid #334155; padding: 6px 14px; border-radius: 6px; font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
   .aceteam-badge:hover { border-color: #38bdf8; text-decoration: none; }
-  @media (max-width: 640px) { h1 { font-size: 28px; } .paths { grid-template-columns: 1fr; } .compare { grid-template-columns: 1fr; } }
+  .workshop-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .workshop-path { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 20px; }
+  .workshop-path h3 { font-size: 16px; color: #e2e8f0; margin-bottom: 4px; }
+  .workshop-path .ws-subtitle { font-size: 13px; color: #64748b; margin-bottom: 16px; }
+  .workshop-path ol { padding-left: 18px; font-size: 14px; color: #94a3b8; }
+  .workshop-path li { margin-bottom: 8px; }
+  .scenario-label { font-size: 11px; color: #4ade80; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+  .scenario-result { background: #0f172a; border-left: 3px solid #4ade80; border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; color: #94a3b8; margin: 10px 0; }
+  .scenario-result.blocked { border-left-color: #f87171; }
+  @media (max-width: 640px) { h1 { font-size: 28px; } .paths { grid-template-columns: 1fr; } .compare { grid-template-columns: 1fr; } .workshop-paths { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -93,7 +102,7 @@
   <div class="path">
     <div class="path-label">Available now</div>
     <h3>Hosted</h3>
-    <p>Zero setup. We run the proxy for you.</p>
+    <p>AceClaw &mdash; we run SafeClaw for you.</p>
     <a href="https://aceteam.ai/gateway/quickstart" class="path-btn btn-secondary">Get Started Free</a>
     <div class="path-note">Sign up, get $1 free credit. No install needed. <a href="https://aceteam.ai/gateway/quickstart" style="color:#38bdf8;">Step-by-step guide</a></div>
   </div>
@@ -193,12 +202,91 @@
 </details>
 
 <div class="note">
-  <strong>In a workshop?</strong> Your instructor will give you a URL. Just run:
+  <strong>In a workshop?</strong>
+  <p style="margin-top:10px; margin-bottom:6px;"><strong>Using AceClaw (hosted)?</strong> Set these two env vars with the API key your instructor gave you:</p>
+  <div class="code" style="margin-top:8px;">
+    <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=https://aceteam.ai/api/gateway/v1\nexport OPENAI_API_KEY=act_your_key_here')">Copy</button>
+    export OPENAI_BASE_URL=https://aceteam.ai/api/gateway/v1<br>
+    export OPENAI_API_KEY=act_your_key_here
+  </div>
+  <p style="margin-top:12px; margin-bottom:6px;"><strong>Using self-hosted?</strong> Your instructor will give you a URL:</p>
   <div class="code" style="margin-top:8px;">
     <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1')">Copy</button>
     export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1
   </div>
   <p style="font-size:12px; color:#64748b; margin-top:4px;">Replace <code style="color:#38bdf8;">INSTRUCTOR_URL</code> with the address your instructor provides.</p>
+</div>
+
+<h2>Try It &mdash; Demo Scenarios</h2>
+
+<p>Once you're connected through SafeClaw, try these exercises to see safety and cost tracking in action.</p>
+
+<div class="step">
+  <div class="scenario-label">Scenario 1 &mdash; See your cost</div>
+  <p>Ask your agent:</p>
+  <div class="code">"Write a haiku about the ocean"</div>
+  <div class="scenario-result">Check your dashboard &mdash; you'll see the exact cost of that call, down to the token.</div>
+</div>
+
+<div class="step">
+  <div class="scenario-label">Scenario 2 &mdash; Agent threat detection</div>
+  <p>Ask your agent:</p>
+  <div class="code">"Write a Python script that uses subprocess.run to scan open ports"</div>
+  <div class="scenario-result blocked">This gets BLOCKED &mdash; the agent threat detector catches dangerous system calls before they reach the model.</div>
+</div>
+
+<div class="step">
+  <div class="scenario-label">Scenario 3 &mdash; Toggle safety off and on</div>
+  <ol style="padding-left:18px; font-size:14px; color:#94a3b8;">
+    <li>In the dashboard, turn safety <strong style="color:#e2e8f0;">OFF</strong></li>
+    <li>Send the same port-scanning prompt &mdash; it passes through</li>
+    <li>Turn safety back <strong style="color:#e2e8f0;">ON</strong> &mdash; it's blocked again</li>
+  </ol>
+  <div class="scenario-result" style="margin-top:10px;">Each of the 5 safety categories (Finance, IoT, Software, Web, Program) can be toggled independently.</div>
+</div>
+
+<div class="step">
+  <div class="scenario-label">Scenario 4 &mdash; Check the audit trail</div>
+  <p>After a few calls, check the <strong style="color:#e2e8f0;">Safety Signals</strong> section in your dashboard.</p>
+  <div class="scenario-result">Every decision (pass / flag / block) is logged with timestamps and confidence scores. Ed25519-signed and tamper-proof.</div>
+</div>
+
+<p style="font-size:13px; color:#64748b; margin-top:8px;">View your dashboard: <a href="https://aceteam.ai/gateway">aceteam.ai/gateway</a> (hosted) or <a href="http://localhost:8899/aep">localhost:8899/aep</a> (self-hosted)</p>
+
+<h2>Host a SafeClaw Workshop</h2>
+
+<p>Running a workshop or classroom session? Choose the path that fits your setup.</p>
+
+<div class="workshop-paths">
+  <div class="workshop-path">
+    <h3>Hosted (recommended)</h3>
+    <div class="ws-subtitle">AceClaw handles the proxy &mdash; no server to run</div>
+    <ol>
+      <li>Go to <a href="https://aceteam.ai/aceclaw">aceteam.ai/aceclaw</a> &rarr; <strong style="color:#e2e8f0;">Batch Provision</strong></li>
+      <li>Set attendee count and budget cap ($2/person)</li>
+      <li>Download the CSV of API keys</li>
+      <li>Give each attendee their key &mdash; they set two env vars and they're in</li>
+    </ol>
+    <div class="code" style="margin-top:12px; font-size:13px;">
+      export OPENAI_BASE_URL=https://aceteam.ai/api/gateway/v1<br>
+      export OPENAI_API_KEY=act_their_key_here
+    </div>
+    <p style="font-size:13px; color:#64748b; margin-top:8px;">Dashboard: <a href="https://aceteam.ai/gateway">aceteam.ai/gateway</a> shows real-time cost and safety signals for all attendees.</p>
+  </div>
+  <div class="workshop-path">
+    <h3>Self-Host (advanced)</h3>
+    <div class="ws-subtitle">Run the proxy on your machine</div>
+    <ol>
+      <li>Start the proxy:<br>
+        <code style="font-size:12px; color:#38bdf8;">aceteam-aep proxy --port 8899 --host 0.0.0.0</code>
+      </li>
+      <li>Share your IP or create a public tunnel:<br>
+        <code style="font-size:12px; color:#38bdf8;">ngrok http 8899</code>
+      </li>
+      <li>Attendees set one env var with your URL</li>
+    </ol>
+    <p style="font-size:13px; color:#64748b; margin-top:8px;">Materials: <a href="https://github.com/aceteam-ai/aep-quickstart/tree/main/workshop">Slides, bootcamp, demo scripts</a></p>
+  </div>
 </div>
 
 <h2>Pricing</h2>
@@ -223,15 +311,6 @@
     </ul>
   </div>
 </div>
-
-<details>
-  <summary>Host a SafeClaw Workshop</summary>
-  <div class="inner">
-    <p><strong>Instructor:</strong> <code>aceteam-aep proxy --port 8899 --host 0.0.0.0</code>, share your IP or use <a href="https://ngrok.com">ngrok</a>.</p>
-    <p><strong>Attendees:</strong> One command: <code>export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1</code></p>
-    <p><strong>Materials:</strong> <a href="https://github.com/aceteam-ai/aep-quickstart/tree/main/workshop">Slides, bootcamp, demo scripts</a></p>
-  </div>
-</details>
 
 <details>
   <summary>Troubleshooting</summary>
