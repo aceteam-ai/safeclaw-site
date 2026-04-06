@@ -151,9 +151,9 @@
 <p>SafeClaw sits between your agent and the LLM. Every call is checked before it reaches the model. Dangerous requests are blocked. Everything is logged.</p>
 
 <ul>
-  <li><strong>Regex detectors (free)</strong> &mdash; 11 built-in patterns catch port scanning, reverse shells, system commands, credential access. Zero latency, always on.</li>
-  <li><strong>5 safety categories</strong> &mdash; Finance, IoT, Software, Web, Program. Toggle each from the dashboard. Regex covers Program and basic Web. <span class="coming-soon">Trust Engine coming soon</span> for calibrated ML detection across all 5.</li>
-  <li><strong>Signed audit trail</strong> &mdash; Ed25519 signatures, Merkle chain. Tamper-proof compliance.</li>
+  <li><strong>Built-in threat detection (free)</strong> &mdash; catches port scanning, reverse shells, system commands, credential access, and more. Instant, always on.</li>
+  <li><strong>5 safety categories</strong> &mdash; Finance, IoT, Software, Web, Program. Toggle each on or off from the dashboard. <span class="coming-soon">ML-powered detection coming soon</span> for deeper coverage across all 5.</li>
+  <li><strong>Audit trail</strong> &mdash; every decision is recorded. What was blocked, when, and why. Your compliance team can prove safety was enforced.</li>
 </ul>
 
 <h2>Works with Claude Code</h2>
@@ -281,7 +281,7 @@
 <div class="step">
   <div class="scenario-label">Scenario 4 &mdash; Check the audit trail</div>
   <p>After a few calls, check the <strong style="color:#e2e8f0;">Safety Signals</strong> section in your dashboard.</p>
-  <div class="scenario-result">Every decision (pass / flag / block) is logged with timestamps and confidence scores. Ed25519-signed and tamper-proof.</div>
+  <div class="scenario-result">Every decision (pass / flag / block) is logged with timestamps. Your compliance team gets a complete record of what was checked and what happened.</div>
 </div>
 
 <p style="font-size:13px; color:#64748b; margin-top:8px;">View your dashboard: <a href="https://aceteam.ai/gateway">aceteam.ai/gateway</a> (hosted) or <a href="http://localhost:8899/aep">localhost:8899/aep</a> (self-hosted)</p>
@@ -328,9 +328,9 @@
   <div class="compare-col">
     <div class="compare-label" style="color:#38bdf8;">Free (Self-Host)</div>
     <ul>
-      <li>Full proxy, dashboard, MCP tools</li>
-      <li>Regex + basic safety detectors</li>
-      <li>Signed audit trail</li>
+      <li>Full safety proxy + dashboard</li>
+      <li>Built-in threat detection</li>
+      <li>Complete audit trail</li>
       <li>Open source (Apache 2.0)</li>
     </ul>
   </div>
@@ -340,7 +340,7 @@
       <li>Hosted &mdash; no install needed</li>
       <li>$1 free LLM credit on signup</li>
       <li>Dashboard, cost tracking, audit trail</li>
-      <li>Trust Engine ML detection <span class="coming-soon">coming soon</span></li>
+      <li>ML-powered safety detection <span class="coming-soon">coming soon</span></li>
     </ul>
   </div>
 </div>
