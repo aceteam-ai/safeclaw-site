@@ -151,9 +151,8 @@
 <p>SafeClaw sits between your agent and the LLM. Every call is checked before it reaches the model. Dangerous requests are blocked. Everything is logged.</p>
 
 <ul>
-  <li><strong>5 safety categories</strong> &mdash; Finance, IoT, Software, Web, Program. Toggle each from the dashboard.</li>
-  <li><strong>Confidence scores</strong> &mdash; not just block/pass. "82% confident this is a financial risk." Human review for borderline cases.</li>
-  <li><strong>Learns from your team</strong> &mdash; deny a flagged action once, similar actions get caught automatically.</li>
+  <li><strong>Regex detectors (free)</strong> &mdash; 11 built-in patterns catch port scanning, reverse shells, system commands, credential access. Zero latency, always on.</li>
+  <li><strong>5 safety categories</strong> &mdash; Finance, IoT, Software, Web, Program. Toggle each from the dashboard. Regex covers Program and basic Web. <span class="coming-soon">Trust Engine coming soon</span> for calibrated ML detection across all 5.</li>
   <li><strong>Signed audit trail</strong> &mdash; Ed25519 signatures, Merkle chain. Tamper-proof compliance.</li>
 </ul>
 
@@ -319,7 +318,7 @@
       </li>
       <li>Attendees set one env var with your URL</li>
     </ol>
-    <p style="font-size:13px; color:#64748b; margin-top:8px;">Materials: <a href="https://github.com/aceteam-ai/aep-quickstart/tree/main/workshop">Slides, bootcamp, demo scripts</a></p>
+    <p style="font-size:13px; color:#64748b; margin-top:8px;">Materials: <a href="https://safeclaw.sh/workshop">Bootcamp guide, demo scenarios, slides</a></p>
   </div>
 </div>
 
@@ -340,8 +339,8 @@
     <ul>
       <li>Hosted &mdash; no install needed</li>
       <li>$1 free LLM credit on signup</li>
-      <li>Calibrated Trust Engine detection</li>
-      <li>Workflows, team sharing, compliance</li>
+      <li>Dashboard, cost tracking, audit trail</li>
+      <li>Trust Engine ML detection <span class="coming-soon">coming soon</span></li>
     </ul>
   </div>
 </div>
