@@ -100,11 +100,11 @@
 
 <div class="paths">
   <div class="path">
-    <div class="path-label">Available now</div>
+    <div class="path-label">Easiest</div>
     <h3>Hosted</h3>
-    <p>AceClaw &mdash; we run SafeClaw for you.</p>
-    <a href="https://aceteam.ai/gateway/quickstart" class="path-btn btn-secondary">Get Started Free</a>
-    <div class="path-note">Sign up, get $1 free credit. No install needed. <a href="https://aceteam.ai/gateway/quickstart" style="color:#38bdf8;">Step-by-step guide</a></div>
+    <p>Your own SafeClaw instance on AceTeam. Chat, build apps, run workflows.</p>
+    <a href="https://aceteam.ai/instances" class="path-btn btn-secondary">Launch Instance</a>
+    <div class="path-note">One click, 30 seconds to running. Share a link or scan a QR code.</div>
   </div>
   <div class="path">
     <div class="path-label">Available now</div>
@@ -224,25 +224,20 @@
     </ul>
   </div>
   <div class="compare-col">
-    <div class="compare-label" style="color:#4ade80;">Hosted (AceClaw)</div>
+    <div class="compare-label" style="color:#4ade80;">Hosted on AceTeam</div>
     <ul>
-      <li>No install, no Docker needed</li>
-      <li>We provide the API keys</li>
-      <li>Dashboard at aceteam.ai/gateway</li>
-      <li>Team sharing and admin view</li>
+      <li>No install &mdash; launch in one click</li>
+      <li>Full SafeClaw chat UI in your browser</li>
+      <li>Build apps, run workflows via MCP tools</li>
+      <li>Share via link or QR code</li>
     </ul>
   </div>
 </div>
 
 <div class="note">
   <strong>In a workshop?</strong>
-  <p style="margin-top:10px; margin-bottom:6px;"><strong>Using AceClaw (hosted)?</strong> Set these two env vars with the API key your instructor gave you:</p>
-  <div class="code" style="margin-top:8px;">
-    <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=https://aceteam.ai/api/gateway/v1\nexport OPENAI_API_KEY=act_your_key_here')">Copy</button>
-    export OPENAI_BASE_URL=https://aceteam.ai/api/gateway/v1<br>
-    export OPENAI_API_KEY=act_your_key_here
-  </div>
-  <p style="margin-top:12px; margin-bottom:6px;"><strong>Using self-hosted?</strong> Your instructor will give you a URL:</p>
+  <p style="margin-top:10px; margin-bottom:6px;"><strong>Hosted (easiest):</strong> Go to <a href="https://aceteam.ai/instances" style="color:#38bdf8;">aceteam.ai/instances</a>, launch your own SafeClaw, and start chatting. No env vars, no install.</p>
+  <p style="margin-top:12px; margin-bottom:6px;"><strong>Self-hosted?</strong> Your instructor will give you a URL:</p>
   <div class="code" style="margin-top:8px;">
     <button class="copy" onclick="navigator.clipboard.writeText('export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1')">Copy</button>
     export OPENAI_BASE_URL=http://INSTRUCTOR_URL:8899/v1
@@ -284,7 +279,7 @@
   <div class="scenario-result">Every decision (pass / flag / block) is logged with timestamps. Your compliance team gets a complete record of what was checked and what happened.</div>
 </div>
 
-<p style="font-size:13px; color:#64748b; margin-top:8px;">View your dashboard: <a href="https://aceteam.ai/gateway">aceteam.ai/gateway</a> (hosted) or <a href="http://localhost:8899/aep">localhost:8899/aep</a> (self-hosted)</p>
+<p style="font-size:13px; color:#64748b; margin-top:8px;">View your dashboard: <a href="https://aceteam.ai/instances">aceteam.ai/instances</a> (hosted) or <a href="http://localhost:8899/aep">localhost:8899/aep</a> (self-hosted)</p>
 
 <h2>Host a SafeClaw Workshop</h2>
 
@@ -293,18 +288,14 @@
 <div class="workshop-paths">
   <div class="workshop-path">
     <h3>Hosted (recommended)</h3>
-    <div class="ws-subtitle">AceClaw handles the proxy &mdash; no server to run</div>
+    <div class="ws-subtitle">Each student gets their own SafeClaw instance</div>
     <ol>
-      <li>Go to <a href="https://aceteam.ai/aceclaw">aceteam.ai/aceclaw</a> &rarr; <strong style="color:#e2e8f0;">Batch Provision</strong></li>
-      <li>Set attendee count and budget cap ($2/person)</li>
-      <li>Download the CSV of API keys</li>
-      <li>Give each attendee their key &mdash; they set two env vars and they're in</li>
+      <li>Students go to <a href="https://aceteam.ai/instances">aceteam.ai/instances</a></li>
+      <li>Click <strong style="color:#e2e8f0;">Launch Instance</strong> &mdash; 30 seconds to running</li>
+      <li>Click <strong style="color:#e2e8f0;">Open SafeClaw</strong> to start chatting</li>
+      <li>Try: "Build me a study timer app" &mdash; agent builds and hosts it</li>
     </ol>
-    <div class="code" style="margin-top:12px; font-size:13px;">
-      export OPENAI_BASE_URL=https://aceteam.ai/api/gateway/v1<br>
-      export OPENAI_API_KEY=act_their_key_here
-    </div>
-    <p style="font-size:13px; color:#64748b; margin-top:8px;">Dashboard: <a href="https://aceteam.ai/gateway">aceteam.ai/gateway</a> shows real-time cost and safety signals for all attendees.</p>
+    <p style="font-size:13px; color:#64748b; margin-top:8px;">Each instance has its own safety dashboard, cost tracking, and shareable link. Instances auto-sleep when idle to save cost.</p>
   </div>
   <div class="workshop-path">
     <h3>Self-Host (advanced)</h3>
@@ -337,10 +328,10 @@
   <div class="compare-col">
     <div class="compare-label" style="color:#4ade80;">AceTeam Hosted</div>
     <ul>
-      <li>Hosted &mdash; no install needed</li>
-      <li>$1 free LLM credit on signup</li>
-      <li>Dashboard, cost tracking, audit trail</li>
-      <li>ML-powered safety detection <span class="coming-soon">coming soon</span></li>
+      <li>Your own SafeClaw instance in one click</li>
+      <li>Chat UI, app builder, workflow tools</li>
+      <li>Safety dashboard + cost tracking built in</li>
+      <li>Pay only for what you use</li>
     </ul>
   </div>
 </div>
