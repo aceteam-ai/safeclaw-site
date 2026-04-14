@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SafeClaw — Safety for AI Agents</title>
 <meta name="description" content="Turn safety on for AI agents. Track spending, block dangerous actions, catch data leaks. Free and open source by AceTeam.">
+<script async defer src="https://buttons.github.io/buttons.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -97,6 +98,24 @@
   Your AI agent just spent $135K. Deleted an inbox. Leaked a credit card number.<br>
   <strong>Turn safety on.</strong>
 </p>
+
+<div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px;">
+  <a class="github-button" href="https://github.com/aceteam-ai/aceteam-aep" data-color-scheme="no-preference: dark; light: dark; dark: dark;" data-size="large" data-show-count="true" aria-label="Star aceteam-ai/aceteam-aep on GitHub">Star on GitHub</a>
+  <a class="github-button" href="https://github.com/aceteam-ai/aceteam-aep/fork" data-color-scheme="no-preference: dark; light: dark; dark: dark;" data-size="large" aria-label="Fork aceteam-ai/aceteam-aep on GitHub">Fork</a>
+</div>
+
+<div style="display:flex; gap:20px; align-items:center; background:#1e293b; border:1px solid #334155; border-radius:10px; padding:18px; margin:0 0 24px 0; flex-wrap:wrap;">
+  <div style="background:#ffffff; padding:8px; border-radius:6px; flex-shrink:0; line-height:0;">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&amp;data=https%3A%2F%2Fgithub.com%2Faceteam-ai%2Faceteam-aep&amp;margin=0" alt="QR code to github.com/aceteam-ai/aceteam-aep" width="180" height="180" style="display:block;">
+  </div>
+  <div style="flex:1; min-width:220px;">
+    <h3 style="font-size:18px; color:#e2e8f0; margin-bottom:6px;">Scan to star the repo</h3>
+    <p style="font-size:14px; color:#94a3b8; margin-bottom:8px;">At a workshop or lecture? Point your phone at the code, land on GitHub, tap the star. It's the one thing you can do right now to keep this project moving.</p>
+    <p style="font-size:13px; color:#64748b; margin:0;">Or tap: <a href="https://github.com/aceteam-ai/aceteam-aep" style="color:#38bdf8;">github.com/aceteam-ai/aceteam-aep</a></p>
+  </div>
+</div>
+
+<p style="font-size:14px; color:#64748b; margin-bottom:32px;"><strong style="color:#94a3b8;">New to AI agents?</strong> This site works for everyone &mdash; students, first-time builders, and seasoned engineers. Follow along in order, or jump to the part you need.</p>
 
 <div class="paths">
   <div class="path">
@@ -344,6 +363,63 @@
     <p><strong>Slow first download:</strong> ~1 GB one-time, then starts in seconds.</p>
   </div>
 </details>
+
+<h2>Stay in the Loop</h2>
+
+<p>Get SafeClaw release notes, workshop dates, and new threat detectors by email. No spam, unsubscribe anytime.</p>
+
+<form id="newsletter-form" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
+  <input type="email" id="newsletter-email" name="email" required placeholder="you@domain.com" autocomplete="email" style="flex:1; min-width:220px; background:#1e293b; border:1px solid #334155; border-radius:6px; padding:12px 16px; color:#e2e8f0; font-size:14px; font-family:inherit;">
+  <button type="submit" id="newsletter-button" style="background:#38bdf8; color:#0f172a; border:none; border-radius:6px; padding:12px 28px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;">Subscribe</button>
+</form>
+<p id="newsletter-status" style="font-size:13px; margin-top:12px; min-height:20px; color:#94a3b8;"></p>
+
+<p style="font-size:13px; color:#64748b; margin-top:8px;"><strong style="color:#94a3b8;">Ready to use the full platform?</strong> <a href="https://aceteam.ai">Sign in to aceteam.ai</a> &mdash; no waitlist, no approval, just log in and go.</p>
+
+<script>
+(function() {
+  var form = document.getElementById('newsletter-form');
+  var statusEl = document.getElementById('newsletter-status');
+  var btn = document.getElementById('newsletter-button');
+  if (!form) return;
+
+  function showFallback() {
+    statusEl.style.color = '#f87171';
+    statusEl.textContent = "Couldn't reach the server. ";
+    var link = document.createElement('a');
+    link.href = "mailto:jason@aceteam.ai?subject=Subscribe%20me%20to%20SafeClaw%20updates&body=Please%20add%20me%20to%20the%20SafeClaw%20updates%20list.";
+    link.style.color = '#38bdf8';
+    link.textContent = 'Email me directly';
+    statusEl.appendChild(link);
+    statusEl.appendChild(document.createTextNode(" and I'll add you manually."));
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var email = document.getElementById('newsletter-email').value.trim();
+    if (!email) return;
+    btn.disabled = true;
+    statusEl.style.color = '#94a3b8';
+    statusEl.textContent = 'Subscribing\u2026';
+    fetch('https://aceteam.ai/api/newsletter/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    }).then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }).then(function() {
+      statusEl.style.color = '#4ade80';
+      statusEl.textContent = "You're subscribed. See you in the next release notes.";
+      form.reset();
+      btn.disabled = false;
+    }).catch(function() {
+      showFallback();
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
 
 <h2>Learn More</h2>
 
