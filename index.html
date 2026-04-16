@@ -120,11 +120,11 @@
 
 <div class="paths">
   <div class="path">
-    <div class="path-label"><span class="coming-soon">Coming soon</span></div>
+    <div class="path-label">Available now</div>
     <h3>Hosted</h3>
-    <p>Your own SafeClaw instance on AceTeam. Chat, build apps, run workflows.</p>
-    <a href="https://www.linkedin.com/in/sunapi386/" class="path-btn btn-secondary" target="_blank">Connect on LinkedIn for a coupon</a>
-    <div class="path-note">Add me on LinkedIn and message "SafeClaw" for an early-access coupon.</div>
+    <p>Your own SafeClaw instance on AceTeam. No monthly fees &mdash; just pay for token usage at fair market rate.</p>
+    <a href="https://aceteam.ai" class="path-btn btn-secondary" target="_blank">Launch on AceTeam</a>
+    <div class="path-note">Free to start. You only pay for the tokens you use.</div>
   </div>
   <div class="path">
     <div class="path-label">Available now</div>
@@ -178,14 +178,14 @@
 
 <h2>Works with Claude Code</h2>
 
-<p>One line in your config gives Claude Code 4 safety tools:</p>
+<p>Once SafeClaw is running (self-hosted or via the installer above), add this to your Claude Code MCP config to give it 4 safety tools &mdash; cost lookup, verdict history, safety status, and threat scan:</p>
 
 <div class="code">
   <button class="copy" onclick="navigator.clipboard.writeText('{&quot;mcpServers&quot;:{&quot;aceteam&quot;:{&quot;type&quot;:&quot;streamable-http&quot;,&quot;url&quot;:&quot;http://localhost:8899/mcp/&quot;}}}')">Copy</button>
   {"mcpServers":{"aceteam":{"type":"streamable-http","url":"http://localhost:8899/mcp/"}}}
 </div>
 
-<p style="font-size:13px; color:#64748b;">Or run <code style="color:#38bdf8;">aceteam-aep setup</code> to auto-detect and configure.</p>
+<p style="font-size:13px; color:#64748b;">Paste into <code style="color:#38bdf8;">~/.claude.json</code> (or your project's <code style="color:#38bdf8;">.mcp.json</code>). Or run <code style="color:#38bdf8;">aceteam-aep setup</code> to auto-detect and configure.</p>
 
 <h2 id="self-host">Self-Host Setup</h2>
 
@@ -198,8 +198,8 @@
   <p>Run the installer to automatically detect your environment, pull images, and set up your workspace.</p>
   <div class="code">
     <div class="path-label" style="margin-bottom:4px; font-size:11px;">Linux / macOS</div>
-    <button class="copy" onclick="navigator.clipboard.writeText('curl -fsSL https://safeclaw.sh/install.sh | bash')">Copy</button>
-    curl -fsSL https://safeclaw.sh/install.sh | bash
+    <button class="copy" onclick="navigator.clipboard.writeText('curl -fsSL -H \'Cache-Control: no-cache\' https://safeclaw.sh/install.sh | bash')">Copy</button>
+    curl -fsSL -H 'Cache-Control: no-cache' https://safeclaw.sh/install.sh | bash
   </div>
   <div class="code">
     <div class="path-label" style="margin-bottom:4px; font-size:11px;">Windows (PowerShell)</div>
@@ -233,6 +233,8 @@
 <div class="step">
   <div class="step-num">Next &mdash; Open the dashboard</div>
   <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a>. Go to <strong>Settings</strong> to add your OpenAI or Anthropic API key. The key is stored locally &mdash; it never leaves your machine.</p>
+  <p style="font-size:13px; color:#64748b; margin-top:8px;"><strong style="color:#94a3b8;">Don't have an API key?</strong> No problem &mdash; message me on LinkedIn for a <strong style="color:#4ade80;">$20 free token coupon</strong> to get started.</p>
+  <a href="https://www.linkedin.com/in/sunapi386/" target="_blank" style="display:inline-block; margin-top:8px; padding:8px 18px; background:#0a66c2; color:#fff; border-radius:6px; font-size:13px; font-weight:600; text-decoration:none;">Message me on LinkedIn for $20 free tokens</a>
 </div>
 
 <div class="step">
@@ -272,12 +274,12 @@
     </ul>
   </div>
   <div class="compare-col">
-    <div class="compare-label" style="color:#4ade80;">Hosted on AceTeam <span class="coming-soon">coming soon</span></div>
+    <div class="compare-label" style="color:#4ade80;">Hosted on AceTeam</div>
     <ul>
       <li>No install &mdash; launch in one click</li>
       <li>Full SafeClaw chat UI in your browser</li>
       <li>Build apps, run workflows via MCP tools</li>
-      <li><a href="https://www.linkedin.com/in/sunapi386/" style="color:#38bdf8;">Connect on LinkedIn</a> for an early-access coupon</li>
+      <li>Free &mdash; pay only for tokens at fair market rate</li>
     </ul>
   </div>
 </div>
@@ -351,9 +353,13 @@
         <p style="font-size:13px; color:#64748b; margin-top:8px;">Materials: <a href="https://safeclaw.sh/workshop">Bootcamp guide, demo scenarios, slides</a></p>
       </div>
       <div class="workshop-path">
-        <h3>Hosted <span class="coming-soon">coming soon</span></h3>
+        <h3>Hosted</h3>
         <div class="ws-subtitle">Each student gets their own SafeClaw instance</div>
-        <p style="font-size:14px; color:#94a3b8; margin-top:12px;"><a href="https://www.linkedin.com/in/sunapi386/" style="color:#38bdf8;">Connect on LinkedIn</a> and message "SafeClaw workshop" for early access and bulk coupons.</p>
+        <ol>
+          <li>Students go to <a href="https://aceteam.ai" style="color:#38bdf8;">aceteam.ai</a> and launch an instance</li>
+          <li>Free &mdash; no setup, just pay for tokens used</li>
+          <li><a href="https://www.linkedin.com/in/sunapi386/" style="color:#38bdf8;">Connect on LinkedIn</a> for bulk workshop coupons</li>
+        </ol>
       </div>
     </div>
   </div>
@@ -372,12 +378,12 @@
     </ul>
   </div>
   <div class="compare-col">
-    <div class="compare-label" style="color:#4ade80;">AceTeam Hosted <span class="coming-soon">coming soon</span></div>
+    <div class="compare-label" style="color:#4ade80;">AceTeam Hosted</div>
     <ul>
       <li>Your own SafeClaw instance in one click</li>
       <li>Chat UI, app builder, workflow tools</li>
       <li>Safety dashboard + cost tracking built in</li>
-      <li><a href="https://www.linkedin.com/in/sunapi386/" style="color:#38bdf8;">Connect on LinkedIn</a> &mdash; message "SafeClaw" for a coupon</li>
+      <li>Free &mdash; pay only for tokens at fair market rate</li>
     </ul>
   </div>
 </div>
@@ -401,7 +407,7 @@
 </form>
 <p id="newsletter-status" style="font-size:13px; margin-top:12px; min-height:20px; color:#94a3b8;"></p>
 
-<p style="font-size:13px; color:#64748b; margin-top:8px;"><strong style="color:#94a3b8;">Want hosted SafeClaw?</strong> <a href="https://www.linkedin.com/in/sunapi386/" style="color:#38bdf8;">Connect on LinkedIn</a> and message "SafeClaw" for an early-access coupon.</p>
+<p style="font-size:13px; color:#64748b; margin-top:8px;"><strong style="color:#94a3b8;">Want hosted SafeClaw?</strong> Launch your own instance at <a href="https://aceteam.ai" style="color:#38bdf8;">aceteam.ai</a> &mdash; free, pay only for token usage.</p>
 
 <script>
 (function() {

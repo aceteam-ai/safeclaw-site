@@ -1,5 +1,6 @@
 # SafeClaw Windows Installer
 # Usage: iwr -useb https://safeclaw.sh/install.ps1 | iex
+# Safe to run multiple times — existing config is preserved.
 
 Write-Host ""
 Write-Host "  SafeClaw" -ForegroundColor Cyan
@@ -86,17 +87,15 @@ if ($choice -eq "1") {
     Write-Host "    [2/2] AEP safety proxy image" -ForegroundColor DarkGray
     & $containerCmd pull ghcr.io/aceteam-ai/aep-proxy:latest
 
-    # Download compose files
+    # Always download/update compose files (idempotent)
     $composeFile = Join-Path $safePath "docker-compose.yml"
     $safeComposeFile = Join-Path $safePath "docker-compose.safe.yml"
-    if (-not (Test-Path $composeFile)) {
-        Write-Host "    Downloading compose files..." -ForegroundColor DarkGray
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/docker-compose.yml" -OutFile $composeFile -UseBasicParsing
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/docker-compose.safe.yml" -OutFile $safeComposeFile -UseBasicParsing
-        try {
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/.env.example" -OutFile (Join-Path $safePath ".env.example") -UseBasicParsing
-        } catch {}
-    }
+    Write-Host "    Downloading compose files..." -ForegroundColor DarkGray
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/docker-compose.yml" -OutFile $composeFile -UseBasicParsing -Headers @{"Cache-Control"="no-cache"}
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/docker-compose.safe.yml" -OutFile $safeComposeFile -UseBasicParsing -Headers @{"Cache-Control"="no-cache"}
+    try {
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/.env.example" -OutFile (Join-Path $safePath ".env.example") -UseBasicParsing -Headers @{"Cache-Control"="no-cache"}
+    } catch {}
 
     # Create .env if missing
     $envFile = Join-Path $safePath ".env"
