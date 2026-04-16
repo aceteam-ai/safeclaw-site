@@ -405,7 +405,7 @@ if [ -t 1 ] && command -v qrencode &>/dev/null; then
     echo -e "  ${CYAN}To claim:${NC}"
     echo "    1. Sign up at aceteam.ai"
     echo "    2. Star github.com/aceteam-ai/safeclaw"
-    echo "    3. DM linkedin.com/in/sunapi386 (mention Pale Blue Dot)"
+    echo "    3. DM linkedin.com/in/sunapi386 (mention TokenRouter)"
     echo ""
     echo -e "  ${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
@@ -417,6 +417,6 @@ elif [ -t 1 ]; then
     echo ""
     echo -e "  ${BOLD}Partner offer: Pale Blue Dot × SafeClaw${NC}"
     echo -e "  ${BOLD}\$200${NC} AceTeam credits, ${BOLD}50 vouchers${NC} available."
-    echo -e "  ${DIM}Sign up at aceteam.ai, star this repo, then DM Jason on LinkedIn (mention Pale Blue Dot).${NC}"
+    echo -e "  ${DIM}Sign up at aceteam.ai, star this repo, then DM Jason on LinkedIn (mention TokenRouter).${NC}"
     echo ""
 fi
