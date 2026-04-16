@@ -23,9 +23,9 @@ echo ""
 # Detect container runtime: prefer Podman, fall back to Docker
 # ---------------------------------------------------------------------------
 CONTAINER_CMD=""
-if command -v podman &>/dev/null; then
+if command -v podman &>/dev/null && podman info &>/dev/null; then
     CONTAINER_CMD="podman"
-elif command -v docker &>/dev/null; then
+elif command -v docker &>/dev/null && docker info &>/dev/null; then
     CONTAINER_CMD="docker"
 fi
 
@@ -143,3 +143,39 @@ echo ""
 echo -e "${DIM}  SafeClaw: github.com/aceteam-ai/safeclaw${NC}"
 echo -e "${DIM}  Workshop: github.com/aceteam-ai/aep-quickstart/blob/main/workshop/bootcamp.html${NC}"
 echo ""
+
+# ---------------------------------------------------------------------------
+# Workshop outro — QR codes + coupon prompt
+# ---------------------------------------------------------------------------
+if [ -t 0 ] && command -v qrencode &>/dev/null; then
+    echo -e "  ${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "  ${BOLD}Connect with me on LinkedIn${NC}        ${BOLD}Star SafeClaw on GitHub${NC}"
+    echo ""
+
+    # Generate QR codes side by side
+    LI_QR=$(qrencode -t UTF8 -m 1 "https://www.linkedin.com/in/sunapi386/" 2>/dev/null)
+    GH_QR=$(qrencode -t UTF8 -m 1 "https://github.com/aceteam-ai/safeclaw" 2>/dev/null)
+
+    if [ -n "$LI_QR" ] && [ -n "$GH_QR" ]; then
+        paste <(echo "$LI_QR") <(echo "$GH_QR") | while IFS=$'\t' read -r left right; do
+            printf "  %-36s  %s\n" "$left" "$right"
+        done
+    fi
+
+    echo ""
+    echo -e "  ${CYAN}linkedin.com/in/sunapi386${NC}          ${CYAN}github.com/aceteam-ai/safeclaw${NC}"
+    echo ""
+    echo -e "  ${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "  ${BOLD}Reply ${GREEN}a${NC}${BOLD} to get a free SafeClaw hosted instance coupon!${NC}"
+    echo ""
+elif [ -t 0 ]; then
+    echo -e "  ${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "  ${BOLD}Connect:${NC}  ${CYAN}linkedin.com/in/sunapi386${NC}"
+    echo -e "  ${BOLD}Star:${NC}     ${CYAN}github.com/aceteam-ai/safeclaw${NC}"
+    echo ""
+    echo -e "  ${BOLD}Reply ${GREEN}a${NC}${BOLD} to get a free SafeClaw hosted instance coupon!${NC}"
+    echo ""
+fi

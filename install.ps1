@@ -7,9 +7,9 @@ Write-Host "  The safe version of OpenClaw" -ForegroundColor DarkGray
 Write-Host ""
 
 $containerCmd = ""
-if (Get-Command podman -ErrorAction SilentlyContinue) {
+if ((Get-Command podman -ErrorAction SilentlyContinue) -and (podman info 2>$null)) {
     $containerCmd = "podman"
-} elseif (Get-Command docker -ErrorAction SilentlyContinue) {
+} elseif ((Get-Command docker -ErrorAction SilentlyContinue) -and (docker info 2>$null)) {
     $containerCmd = "docker"
 }
 
@@ -71,3 +71,14 @@ if ($choice -eq "1") {
     Write-Host ""
     Write-Host "    aceteam-aep proxy --port 8899"
 }
+
+Write-Host ""
+Write-Host "  SafeClaw: github.com/aceteam-ai/safeclaw" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "  Connect:  " -NoNewline; Write-Host "linkedin.com/in/sunapi386" -ForegroundColor Cyan
+Write-Host "  Star:     " -NoNewline; Write-Host "github.com/aceteam-ai/safeclaw" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "  Reply " -NoNewline; Write-Host "a" -ForegroundColor Green -NoNewline; Write-Host " to get a free SafeClaw hosted instance coupon!"
+Write-Host ""
