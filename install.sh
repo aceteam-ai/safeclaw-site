@@ -289,29 +289,46 @@ ENVEOF
         echo -e "  ${DIM}Want the full agent too? Re-run this installer and choose option 1.${NC}"
         ;;
     3)
-        # pip path
+        # pip path — isolated venv via `uv tool install`
         if ! command -v uv &>/dev/null; then
             echo -e "  ${CYAN}Installing uv...${NC}"
             curl -LsSf https://astral.sh/uv/install.sh | sh
             export PATH="$HOME/.local/bin:$PATH"
         fi
 
-        echo -e "  ${CYAN}Installing aceteam-aep...${NC}"
+        echo -e "  ${CYAN}Installing aceteam-aep (isolated tool venv)...${NC}"
         if command -v uv &>/dev/null; then
-            uv pip install --quiet "aceteam-aep[all]" --system 2>/dev/null || \
-            UV_SYSTEM_PYTHON=1 uv pip install --quiet "aceteam-aep[all]" 2>/dev/null || \
-            uv pip install --quiet "aceteam-aep[all]" 2>/dev/null || true
+            # --force lets re-runs upgrade cleanly; do NOT silence errors
+            uv tool install --force "aceteam-aep[all]"
+            uv tool update-shell || true
+            # Add tool bin dir to PATH for this session (piped curl|bash shell)
+            UV_TOOL_BIN="$(uv tool dir --bin 2>/dev/null || echo "$HOME/.local/bin")"
+            export PATH="$UV_TOOL_BIN:$PATH"
+        else
+            echo -e "  ${YELLOW}uv not available — falling back to pip --user${NC}"
+            if command -v pip3 &>/dev/null; then
+                pip3 install --user "aceteam-aep[all]"
+            elif command -v pip &>/dev/null; then
+                pip install --user "aceteam-aep[all]"
+            elif command -v python3 &>/dev/null; then
+                python3 -m pip install --user "aceteam-aep[all]"
+            else
+                echo -e "  ${RED}No Python package manager found (uv, pip, pip3, python3).${NC}"
+                exit 1
+            fi
+            export PATH="$HOME/.local/bin:$PATH"
         fi
 
-        if ! command -v aceteam-aep &>/dev/null; then
-            pip install --quiet "aceteam-aep[all]" --break-system-packages 2>/dev/null || \
-            python3 -m pip install --quiet "aceteam-aep[all]" --break-system-packages 2>/dev/null || \
-            pip install --quiet "aceteam-aep[all]" 2>/dev/null || \
-            python3 -m pip install --quiet "aceteam-aep[all]" 2>/dev/null || true
-        fi
-
-        if ! command -v aceteam-aep &>/dev/null; then
-            echo -e "  ${RED}Installation failed.${NC} Please install aceteam-aep manually: pip install aceteam-aep[all]"
+        # Verify the install actually works end-to-end (not just that the bin exists)
+        if ! aceteam-aep --help >/dev/null 2>&1; then
+            echo ""
+            echo -e "  ${RED}Installation completed but verification failed.${NC}"
+            echo -e "  ${DIM}Running 'aceteam-aep --help' to show the error:${NC}"
+            echo ""
+            aceteam-aep --help || true
+            echo ""
+            echo -e "  ${YELLOW}Add the tool bin dir to your PATH, then re-run:${NC}"
+            echo "    export PATH=\"${UV_TOOL_BIN:-$HOME/.local/bin}:\$PATH\""
             exit 1
         fi
 
