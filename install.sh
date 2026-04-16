@@ -96,8 +96,25 @@ case "$choice" in
         fi
 
         echo -e "  ${CYAN}Installing aceteam-aep...${NC}"
-        uv pip install --system "aceteam-aep[all]" --quiet 2>/dev/null \
-            || uv pip install "aceteam-aep[all]" --quiet
+        # Use uv pip install with various fallback strategies for different environments
+        if command -v uv &>/dev/null; then
+            uv pip install --quiet "aceteam-aep[all]" --system 2>/dev/null || \
+            UV_SYSTEM_PYTHON=1 uv pip install --quiet "aceteam-aep[all]" 2>/dev/null || \
+            uv pip install --quiet "aceteam-aep[all]" 2>/dev/null || true
+        fi
+
+        # If uv failed or isn't used, try pip with --break-system-packages (for managed envs like Debian)
+        if ! command -v aceteam-aep &>/dev/null; then
+            pip install --quiet "aceteam-aep[all]" --break-system-packages 2>/dev/null || \
+            python3 -m pip install --quiet "aceteam-aep[all]" --break-system-packages 2>/dev/null || \
+            pip install --quiet "aceteam-aep[all]" 2>/dev/null || \
+            python3 -m pip install --quiet "aceteam-aep[all]" 2>/dev/null || true
+        fi
+
+        if ! command -v aceteam-aep &>/dev/null; then
+            echo -e "  ${RED}Installation failed.${NC} Please install aceteam-aep manually: pip install aceteam-aep[all]"
+            exit 1
+        fi
 
         echo ""
         echo -e "  ${GREEN}${BOLD}Ready.${NC}"

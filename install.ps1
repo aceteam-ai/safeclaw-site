@@ -49,7 +49,20 @@ if ($choice -eq "1") {
     Write-Host "  Workspace:  $safePath"
 } elseif ($choice -eq "2") {
     Write-Host "  Installing aceteam-aep via pip..." -ForegroundColor Cyan
-    python -m pip install "aceteam-aep[all]" --quiet
+    # Try multiple ways to install pip packages on Windows, including user install and breaking system packages logic (less common on Windows but good for consistency)
+    $pipArgs = @("install", "aceteam-aep[all]", "--quiet")
+
+    # Check if we should try a user install
+    try {
+        & python -m pip $pipArgs --user
+    } catch {
+        & python -m pip $pipArgs
+    }
+
+    if (-not (Get-Command aceteam-aep -ErrorAction SilentlyContinue)) {
+        Write-Host "  Installation failed. Please install aceteam-aep manually: pip install aceteam-aep[all]" -ForegroundColor Red
+        exit 1
+    }
 
     Write-Host ""
     Write-Host "  Ready." -ForegroundColor Green
