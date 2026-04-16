@@ -189,12 +189,36 @@ case "$choice" in
         mkdir -p "$SAFECLAW_DIR"
 
         echo ""
-        echo -e "  ${CYAN}Pulling SafeClaw images via ${CONTAINER_CMD}...${NC}"
+        echo -e "  ${CYAN}Pulling SafeClaw images in parallel via ${CONTAINER_CMD}...${NC}"
+        echo -e "  ${DIM}  AEP safety proxy (smaller, demo-ready first)${NC}"
+        echo -e "  ${DIM}  OpenClaw agent${NC}"
         echo ""
-        echo -e "  ${DIM}  [1/2] OpenClaw agent image${NC}"
-        $CONTAINER_CMD pull ghcr.io/aceteam-ai/safeclaw:latest 2>&1 | tail -3
-        echo -e "  ${DIM}  [2/2] AEP safety proxy image${NC}"
-        $CONTAINER_CMD pull ghcr.io/aceteam-ai/aep-proxy:latest 2>&1 | tail -3
+
+        PROXY_LOG=$(mktemp)
+        SAFECLAW_LOG=$(mktemp)
+
+        # Proxy first (smaller, primary demo target)
+        $CONTAINER_CMD pull ghcr.io/aceteam-ai/aep-proxy:latest >"$PROXY_LOG" 2>&1 &
+        PROXY_PID=$!
+        $CONTAINER_CMD pull ghcr.io/aceteam-ai/safeclaw:latest >"$SAFECLAW_LOG" 2>&1 &
+        SAFECLAW_PID=$!
+
+        # Report proxy first since it should finish first
+        if wait "$PROXY_PID"; then
+            echo -e "  ${GREEN}AEP safety proxy pulled.${NC}"
+        else
+            echo -e "  ${RED}AEP safety proxy pull failed.${NC}"
+            tail -5 "$PROXY_LOG" | sed 's/^/    /'
+        fi
+
+        if wait "$SAFECLAW_PID"; then
+            echo -e "  ${GREEN}OpenClaw agent pulled.${NC}"
+        else
+            echo -e "  ${RED}OpenClaw agent pull failed.${NC}"
+            tail -5 "$SAFECLAW_LOG" | sed 's/^/    /'
+        fi
+
+        rm -f "$PROXY_LOG" "$SAFECLAW_LOG"
 
         # Always download/update compose files (idempotent)
         echo -e "  ${DIM}  Downloading compose files...${NC}"
