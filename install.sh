@@ -31,25 +31,25 @@ if command -v podman &>/dev/null && podman info &>/dev/null; then
     CONTAINER_CMD="podman"
 elif command -v docker &>/dev/null && docker info &>/dev/null; then
     CONTAINER_CMD="docker"
-elif command -v docker &>/dev/null; then
-    # Docker CLI installed but daemon not running
-    echo -e "  ${YELLOW}Docker is installed but the daemon is not running.${NC}"
-    echo -e "  ${DIM}Start Docker Desktop, then re-run this installer.${NC}"
-    echo ""
-    if [ "$(uname -s)" = "Darwin" ]; then
-        echo "    open -a Docker"
-    else
-        echo "    sudo systemctl start docker"
-    fi
-    echo ""
-    exit 1
 elif command -v podman &>/dev/null; then
-    echo -e "  ${YELLOW}Podman is installed but the daemon is not running.${NC}"
-    echo -e "  ${DIM}Start Podman, then re-run this installer.${NC}"
+    # Podman CLI installed but not running
+    echo -e "  ${YELLOW}Podman is installed but not running.${NC}"
+    echo -e "  ${DIM}Starting Podman...${NC}"
+    if podman machine start 2>/dev/null && podman info &>/dev/null; then
+        CONTAINER_CMD="podman"
+        echo -e "  ${GREEN}Podman started.${NC}"
+    else
+        echo -e "  ${DIM}Could not auto-start. Try manually:${NC}"
+        echo "    podman machine start"
+        echo ""
+        # Don't exit — fall through to install_container_runtime if needed
+    fi
+elif command -v docker &>/dev/null; then
+    # Docker CLI installed but daemon not running — suggest Podman instead
+    echo -e "  ${YELLOW}Docker is installed but the daemon is not running.${NC}"
+    echo -e "  ${DIM}We recommend Podman (no daemon needed, no Docker Desktop license).${NC}"
     echo ""
-    echo "    podman machine start"
-    echo ""
-    exit 1
+    # Don't exit — fall through to install_container_runtime which installs Podman
 fi
 
 # ---------------------------------------------------------------------------
@@ -66,18 +66,26 @@ install_container_runtime() {
     case "$os" in
         Darwin)
             if command -v brew &>/dev/null; then
-                echo -e "  ${CYAN}Installing Docker via Homebrew...${NC}"
-                echo -e "  ${DIM}(You can also use: brew install --cask podman-desktop)${NC}"
-                brew install --cask docker
+                echo -e "  ${CYAN}Installing Podman via Homebrew...${NC}"
+                echo -e "  ${DIM}(Free, no Docker Desktop license required)${NC}"
+                brew install podman
                 echo ""
-                echo -e "  ${YELLOW}Docker Desktop installed. Please launch it from Applications,${NC}"
-                echo -e "  ${YELLOW}then re-run this installer.${NC}"
-                exit 0
+                echo -e "  ${CYAN}Initializing Podman machine...${NC}"
+                podman machine init 2>/dev/null || true
+                podman machine start 2>/dev/null || true
+                if podman info &>/dev/null; then
+                    CONTAINER_CMD="podman"
+                    echo -e "  ${GREEN}Podman is ready.${NC}"
+                else
+                    echo -e "  ${YELLOW}Podman installed. Start it manually, then re-run:${NC}"
+                    echo "    podman machine init && podman machine start"
+                    exit 0
+                fi
             else
-                echo -e "  ${RED}Homebrew not found.${NC} Install Docker manually:"
-                echo "    https://docs.docker.com/desktop/install/mac/"
-                echo "  Or install Podman:"
+                echo -e "  ${RED}Homebrew not found.${NC} Install Podman manually:"
                 echo "    https://podman.io/docs/installation"
+                echo "  Or install Docker:"
+                echo "    https://docs.docker.com/desktop/install/mac/"
                 exit 1
             fi
             ;;
@@ -328,10 +336,10 @@ ENVEOF
         echo -e "  ${GREEN}Great.${NC}"
         echo ""
         echo -e "  ${CYAN}Full SafeClaw (recommended):${NC}"
-        echo "    cd ~/safeclaw && docker compose -f docker-compose.yml -f docker-compose.safe.yml up"
+        echo "    cd ~/safeclaw && podman compose -f docker-compose.yml -f docker-compose.safe.yml up"
         echo ""
         echo -e "  ${CYAN}Safety proxy only:${NC}"
-        echo "    docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy"
+        echo "    podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy"
         echo ""
         echo -e "  ${CYAN}pip (developer mode):${NC}"
         echo "    aceteam-aep proxy --port 8899"
