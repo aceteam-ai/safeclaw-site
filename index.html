@@ -193,17 +193,34 @@
 </div>
 
 <div class="step">
-  <div class="step-num">1 &mdash; Start SafeClaw</div>
+  <div class="step-num">Recommended &mdash; One-Line Installer</div>
+  <p>Run the installer to automatically detect your environment, pull images, and set up your workspace.</p>
   <div class="code">
-    <button class="copy" onclick="navigator.clipboard.writeText('podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
-    podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy
+    <div class="path-label" style="margin-bottom:4px; font-size:11px;">Linux / macOS</div>
+    <button class="copy" onclick="navigator.clipboard.writeText('curl -fsSL https://safeclaw.sh/install.sh | bash')">Copy</button>
+    curl -fsSL https://safeclaw.sh/install.sh | bash
   </div>
-  <p style="font-size:13px; color:#64748b;">Using Docker? Replace <code style="color:#38bdf8;">podman</code> with <code style="color:#38bdf8;">docker</code>. First run downloads ~1 GB, then starts in seconds.</p>
+  <div class="code">
+    <div class="path-label" style="margin-bottom:4px; font-size:11px;">Windows (PowerShell)</div>
+    <button class="copy" onclick="navigator.clipboard.writeText('iwr -useb https://safeclaw.sh/install.ps1 | iex')">Copy</button>
+    iwr -useb https://safeclaw.sh/install.ps1 | iex
+  </div>
+</div>
+
+<p style="text-align:center; color:#64748b; font-size:14px; margin:24px 0;">&mdash; OR &mdash;</p>
+
+<div class="step">
+  <div class="step-num">Manual Setup &mdash; Start SafeClaw</div>
+  <div class="code">
+    <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
+    docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy
+  </div>
+  <p style="font-size:13px; color:#64748b;">Using Podman? Replace <code style="color:#38bdf8;">docker</code> with <code style="color:#38bdf8;">podman</code>. First run downloads ~1 GB, then starts in seconds.</p>
 </div>
 
 <div class="step">
-  <div class="step-num">2 &mdash; Open the dashboard</div>
-  <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a>. The setup wizard walks you through adding your OpenAI or Anthropic API key. The key is stored locally &mdash; it never leaves your machine.</p>
+  <div class="step-num">Next &mdash; Open the dashboard</div>
+  <p>Go to <a href="http://localhost:8899/aep/" target="_blank"><strong>localhost:8899/aep</strong></a>. Go to <strong>Settings</strong> to add your OpenAI or Anthropic API key. The key is stored locally &mdash; it never leaves your machine.</p>
 </div>
 
 <div class="step">
