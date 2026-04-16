@@ -67,9 +67,15 @@ if ($choice -eq "1") {
     Write-Host ""
     Write-Host "  Ready." -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Start SafeClaw:" -ForegroundColor Cyan
+    Write-Host "  Start SafeClaw (container - recommended):" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "    docker run -p 8899:8899 -v ~/safeclaw:/workspace ghcr.io/aceteam-ai/aep-proxy"
+    Write-Host ""
+    Write-Host "  Start SafeClaw (pip - developer mode):" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "    aceteam-aep proxy --port 8899"
+    Write-Host ""
+    Write-Host "  Dashboard: http://localhost:8899/aep/"
 }
 
 Write-Host ""
