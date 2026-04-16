@@ -370,13 +370,17 @@ function switchPersona(which) {
 </div>
 
 <details>
-  <summary>Alternative: pip install (no container)</summary>
+  <summary>Alternative: developer mode (git clone + uv)</summary>
   <div class="inner">
     <div class="code" style="margin-bottom:8px;">
-      <button class="copy" onclick="navigator.clipboard.writeText('pip install aceteam-aep[all] && aceteam-aep setup')">Copy</button>
-      pip install aceteam-aep[all] && aceteam-aep setup
+      <button class="copy" onclick="navigator.clipboard.writeText('git clone https://github.com/aceteam-ai/aceteam-aep.git && cd aceteam-aep && curl -LsSf https://astral.sh/uv/install.sh | sh && uv sync --extra proxy && uv run aceteam-aep proxy')">Copy</button>
+      git clone https://github.com/aceteam-ai/aceteam-aep.git<br>
+      cd aceteam-aep<br>
+      curl -LsSf https://astral.sh/uv/install.sh | sh<br>
+      uv sync --extra proxy<br>
+      uv run aceteam-aep proxy
     </div>
-    Auto-detects your runtime (Docker/Podman), starts the proxy, writes <code style="color:#38bdf8;">OPENAI_BASE_URL</code> to your shell profile, configures Claude Code MCP, and opens the dashboard. One command, everything set up.
+    Clone the source, install <a href="https://docs.astral.sh/uv/" target="_blank" style="color:#38bdf8;">uv</a>, sync proxy extras, and run from the repo. Best for hacking on the proxy itself &mdash; changes to the source take effect immediately.
   </div>
 </details>
 

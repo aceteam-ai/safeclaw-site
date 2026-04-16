@@ -56,8 +56,8 @@ Write-Host ""
 Write-Host "  [2] Safety proxy only" -ForegroundColor Cyan
 Write-Host "      For existing agents (Claude Code, CrewAI, LangChain, etc.)" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  [3] pip install (developer mode)" -ForegroundColor Cyan
-Write-Host "      Runs on host, no container - for development/hacking" -ForegroundColor DarkGray
+Write-Host "  [3] Developer mode (git clone + uv sync)" -ForegroundColor Cyan
+Write-Host "      Clone aceteam-aep and run from source - for hacking on the proxy" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  [4] I already have it installed" -ForegroundColor Cyan
 Write-Host ""
@@ -176,35 +176,50 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host "  Want the full agent too? Re-run this installer and choose option 1." -ForegroundColor DarkGray
 
 } elseif ($choice -eq "3") {
-    # pip install
-    Write-Host "  Installing aceteam-aep via pip..." -ForegroundColor Cyan
-    $pipArgs = @("install", "aceteam-aep[all]", "--quiet")
-
-    try {
-        & python -m pip $pipArgs --user
-    } catch {
-        & python -m pip $pipArgs
+    # Developer mode: clone aceteam-aep and run via uv sync --extra proxy
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        Write-Host "  git not found. Install git first, then re-run." -ForegroundColor Red
+        exit 1
     }
 
-    if (-not (Get-Command aceteam-aep -ErrorAction SilentlyContinue)) {
-        Write-Host "  Installation failed. Please install aceteam-aep manually: pip install aceteam-aep[all]" -ForegroundColor Red
-        exit 1
+    if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+        Write-Host "  Installing uv..." -ForegroundColor Cyan
+        Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression
+        $env:Path = "$HOME\.local\bin;$env:Path"
+    }
+
+    $repoDir = if ($env:ACETEAM_AEP_DIR) { $env:ACETEAM_AEP_DIR } else { Join-Path $HOME "aceteam-aep" }
+
+    if (Test-Path (Join-Path $repoDir ".git")) {
+        Write-Host "  Updating existing clone at $repoDir..." -ForegroundColor Cyan
+        git -C $repoDir pull --ff-only
+    } else {
+        Write-Host "  Cloning aceteam-aep into $repoDir..." -ForegroundColor Cyan
+        git clone https://github.com/aceteam-ai/aceteam-aep.git $repoDir
+    }
+
+    Write-Host "  Installing proxy dependencies via uv sync --extra proxy..." -ForegroundColor Cyan
+    Push-Location $repoDir
+    try {
+        uv sync --extra proxy
+    } finally {
+        Pop-Location
     }
 
     Write-Host ""
     Write-Host "  Ready." -ForegroundColor Green
     Write-Host ""
-    Write-Host "  AEP safety proxy installed (pip / developer mode)." -ForegroundColor White
-    Write-Host "  This installs only the safety proxy, not the full OpenClaw agent." -ForegroundColor DarkGray
-    Write-Host "  For the full SafeClaw stack, re-run and choose option 1." -ForegroundColor DarkGray
+    Write-Host "  AEP safety proxy cloned to $repoDir." -ForegroundColor White
+    Write-Host "  Run commands from the repo with 'uv run'. Edit the source and re-run to iterate." -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Start the safety proxy:" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "    aceteam-aep proxy --port 8899"
+    Write-Host "    cd $repoDir"
+    Write-Host "    uv run aceteam-aep proxy --port 8899"
     Write-Host ""
     Write-Host "  Or wrap any agent:" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "    aceteam-aep wrap -- python my_agent.py"
+    Write-Host "    cd $repoDir; uv run aceteam-aep wrap -- python my_agent.py"
     Write-Host ""
     Write-Host "  Dashboard: http://localhost:8899/dashboard/"
 
@@ -218,8 +233,8 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host "  Safety proxy only:" -ForegroundColor Cyan
     Write-Host "    docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy"
     Write-Host ""
-    Write-Host "  pip (developer mode):" -ForegroundColor Cyan
-    Write-Host "    aceteam-aep proxy --port 8899"
+    Write-Host "  Developer mode (from source):" -ForegroundColor Cyan
+    Write-Host "    cd ~/aceteam-aep; uv run aceteam-aep proxy --port 8899"
     Write-Host ""
     Write-Host "  Dashboard: http://localhost:8899/dashboard/"
 } else {

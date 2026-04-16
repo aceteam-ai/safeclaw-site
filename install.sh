@@ -146,8 +146,8 @@ if [ -t 1 ]; then
     echo -e "  ${CYAN}[2]${NC} ${BOLD}Safety proxy only${NC}"
     echo -e "      ${DIM}For existing agents (Claude Code, CrewAI, LangChain, etc.)${NC}"
     echo ""
-    echo -e "  ${CYAN}[3]${NC} ${BOLD}pip install (developer mode)${NC}"
-    echo -e "      ${DIM}Runs on host, no container — for development/hacking${NC}"
+    echo -e "  ${CYAN}[3]${NC} ${BOLD}Developer mode (git clone + uv sync)${NC}"
+    echo -e "      ${DIM}Clone aceteam-aep and run from source — for hacking on the proxy${NC}"
     echo ""
     echo -e "  ${CYAN}[4]${NC} ${BOLD}I already have it installed${NC}"
     echo ""
@@ -313,63 +313,57 @@ ENVEOF
         echo -e "  ${DIM}Want the full agent too? Re-run this installer and choose option 1.${NC}"
         ;;
     3)
-        # pip path — isolated venv via `uv tool install`
+        # Developer mode: clone aceteam-aep source and run via `uv sync --extra proxy`.
+        # More reliable than PyPI (which has been flaky) and gives you an editable source tree.
+        if ! command -v git &>/dev/null; then
+            echo -e "  ${RED}git not found.${NC} Install git first, then re-run."
+            exit 1
+        fi
+
         if ! command -v uv &>/dev/null; then
             echo -e "  ${CYAN}Installing uv...${NC}"
             curl -LsSf https://astral.sh/uv/install.sh | sh
             export PATH="$HOME/.local/bin:$PATH"
         fi
 
-        echo -e "  ${CYAN}Installing aceteam-aep (isolated tool venv)...${NC}"
-        if command -v uv &>/dev/null; then
-            # --force lets re-runs upgrade cleanly; do NOT silence errors
-            uv tool install --force "aceteam-aep[all]"
-            uv tool update-shell || true
-            # Add tool bin dir to PATH for this session (piped curl|bash shell)
-            UV_TOOL_BIN="$(uv tool dir --bin 2>/dev/null || echo "$HOME/.local/bin")"
-            export PATH="$UV_TOOL_BIN:$PATH"
-        else
-            echo -e "  ${YELLOW}uv not available — falling back to pip --user${NC}"
-            if command -v pip3 &>/dev/null; then
-                pip3 install --user "aceteam-aep[all]"
-            elif command -v pip &>/dev/null; then
-                pip install --user "aceteam-aep[all]"
-            elif command -v python3 &>/dev/null; then
-                python3 -m pip install --user "aceteam-aep[all]"
-            else
-                echo -e "  ${RED}No Python package manager found (uv, pip, pip3, python3).${NC}"
+        REPO_DIR="${ACETEAM_AEP_DIR:-$HOME/aceteam-aep}"
+        if [ -d "$REPO_DIR/.git" ]; then
+            echo -e "  ${CYAN}Updating existing clone at ${REPO_DIR}...${NC}"
+            git -C "$REPO_DIR" pull --ff-only || {
+                echo -e "  ${YELLOW}Couldn't fast-forward ${REPO_DIR}. Fix manually or delete it and re-run.${NC}"
                 exit 1
-            fi
-            export PATH="$HOME/.local/bin:$PATH"
+            }
+        else
+            echo -e "  ${CYAN}Cloning aceteam-aep into ${REPO_DIR}...${NC}"
+            git clone https://github.com/aceteam-ai/aceteam-aep.git "$REPO_DIR"
         fi
 
-        # Verify the install actually works end-to-end (not just that the bin exists)
-        if ! aceteam-aep --help >/dev/null 2>&1; then
+        echo -e "  ${CYAN}Installing proxy dependencies via uv sync --extra proxy...${NC}"
+        (cd "$REPO_DIR" && uv sync --extra proxy)
+
+        # Verify the editable install works
+        if ! (cd "$REPO_DIR" && uv run aceteam-aep --help >/dev/null 2>&1); then
             echo ""
-            echo -e "  ${RED}Installation completed but verification failed.${NC}"
-            echo -e "  ${DIM}Running 'aceteam-aep --help' to show the error:${NC}"
-            echo ""
-            aceteam-aep --help || true
-            echo ""
-            echo -e "  ${YELLOW}Add the tool bin dir to your PATH, then re-run:${NC}"
-            echo "    export PATH=\"${UV_TOOL_BIN:-$HOME/.local/bin}:\$PATH\""
+            echo -e "  ${RED}uv sync completed but verification failed.${NC}"
+            echo -e "  ${DIM}Running 'uv run aceteam-aep --help' to show the error:${NC}"
+            (cd "$REPO_DIR" && uv run aceteam-aep --help) || true
             exit 1
         fi
 
         echo ""
         echo -e "  ${GREEN}${BOLD}Ready.${NC}"
         echo ""
-        echo -e "  ${BOLD}AEP safety proxy installed (pip / developer mode).${NC}"
-        echo -e "  ${DIM}This installs only the safety proxy, not the full OpenClaw agent.${NC}"
-        echo -e "  ${DIM}For the full SafeClaw stack, re-run and choose option 1.${NC}"
+        echo -e "  ${BOLD}AEP safety proxy cloned to ${REPO_DIR}.${NC}"
+        echo -e "  ${DIM}Run commands from the repo with 'uv run'. Edit the source and re-run to iterate.${NC}"
         echo ""
         echo -e "  ${CYAN}Start the safety proxy:${NC}"
         echo ""
-        echo "    aceteam-aep proxy --port 8899"
+        echo "    cd $REPO_DIR"
+        echo "    uv run aceteam-aep proxy --port 8899"
         echo ""
         echo -e "  ${CYAN}Or wrap any agent:${NC}"
         echo ""
-        echo "    aceteam-aep wrap -- python my_agent.py"
+        echo "    cd $REPO_DIR && uv run aceteam-aep wrap -- python my_agent.py"
         echo ""
         echo -e "  ${CYAN}Dashboard:${NC} http://localhost:8899/dashboard/"
         ;;
@@ -382,8 +376,8 @@ ENVEOF
         echo -e "  ${CYAN}Safety proxy only:${NC}"
         echo "    podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy"
         echo ""
-        echo -e "  ${CYAN}pip (developer mode):${NC}"
-        echo "    aceteam-aep proxy --port 8899"
+        echo -e "  ${CYAN}Developer mode (from source):${NC}"
+        echo "    cd ~/aceteam-aep && uv run aceteam-aep proxy --port 8899"
         echo ""
         echo -e "  Dashboard: http://localhost:8899/dashboard/"
         ;;
