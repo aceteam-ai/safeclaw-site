@@ -31,6 +31,25 @@ if command -v podman &>/dev/null && podman info &>/dev/null; then
     CONTAINER_CMD="podman"
 elif command -v docker &>/dev/null && docker info &>/dev/null; then
     CONTAINER_CMD="docker"
+elif command -v docker &>/dev/null; then
+    # Docker CLI installed but daemon not running
+    echo -e "  ${YELLOW}Docker is installed but the daemon is not running.${NC}"
+    echo -e "  ${DIM}Start Docker Desktop, then re-run this installer.${NC}"
+    echo ""
+    if [ "$(uname -s)" = "Darwin" ]; then
+        echo "    open -a Docker"
+    else
+        echo "    sudo systemctl start docker"
+    fi
+    echo ""
+    exit 1
+elif command -v podman &>/dev/null; then
+    echo -e "  ${YELLOW}Podman is installed but the daemon is not running.${NC}"
+    echo -e "  ${DIM}Start Podman, then re-run this installer.${NC}"
+    echo ""
+    echo "    podman machine start"
+    echo ""
+    exit 1
 fi
 
 # ---------------------------------------------------------------------------
