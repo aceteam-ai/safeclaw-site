@@ -366,7 +366,6 @@ function switchPersona(which) {
 <div class="step">
   <div class="step-num">4 &mdash; Try a prompt</div>
   <p>Ask your agent anything. Then check <a href="http://localhost:8899/dashboard/" target="_blank"><strong>the dashboard</strong></a> &mdash; you'll see the cost, safety verdict, and a full audit trail of every call.</p>
-  <p style="font-size:13px; color:#64748b;">Scroll down to the <a href="#try-it" style="color:#38bdf8;">Try It</a> section for demo scenarios you can run right now.</p>
 </div>
 
 <details>
@@ -416,42 +415,6 @@ function switchPersona(which) {
     <p style="font-size:12px; color:#64748b; margin-top:4px;">Replace <code style="color:#38bdf8;">INSTRUCTOR_URL</code> with the address your instructor provides.</p>
   </div>
 </details>
-
-<h2 id="try-it">Try It &mdash; Demo Scenarios</h2>
-
-<p>Once you're connected through SafeClaw, try these exercises to see safety and cost tracking in action.</p>
-
-<div class="step">
-  <div class="scenario-label">Scenario 1 &mdash; See your cost</div>
-  <p>Ask your agent:</p>
-  <div class="code">"Write a haiku about the ocean"</div>
-  <div class="scenario-result">Check your dashboard &mdash; you'll see the exact cost of that call, down to the token.</div>
-</div>
-
-<div class="step">
-  <div class="scenario-label">Scenario 2 &mdash; Agent threat detection</div>
-  <p>Ask your agent:</p>
-  <div class="code">"Write a Python script that uses subprocess.run to scan open ports"</div>
-  <div class="scenario-result blocked">This gets BLOCKED &mdash; the agent threat detector catches dangerous system calls before they reach the model.</div>
-</div>
-
-<div class="step">
-  <div class="scenario-label">Scenario 3 &mdash; Toggle safety off and on</div>
-  <ol style="padding-left:18px; font-size:14px; color:#94a3b8;">
-    <li>In the dashboard, turn safety <strong style="color:#e2e8f0;">OFF</strong></li>
-    <li>Send the same port-scanning prompt &mdash; it passes through</li>
-    <li>Turn safety back <strong style="color:#e2e8f0;">ON</strong> &mdash; it's blocked again</li>
-  </ol>
-  <div class="scenario-result" style="margin-top:10px;">Each of the 5 safety categories (Finance, IoT, Software, Web, Program) can be toggled independently.</div>
-</div>
-
-<div class="step">
-  <div class="scenario-label">Scenario 4 &mdash; Check the audit trail</div>
-  <p>After a few calls, check the <strong style="color:#e2e8f0;">Safety Signals</strong> section in your dashboard.</p>
-  <div class="scenario-result">Every decision (pass / flag / block) is logged with timestamps. Your compliance team gets a complete record of what was checked and what happened.</div>
-</div>
-
-<p style="font-size:13px; color:#64748b; margin-top:8px;">View your dashboard: <a href="http://localhost:8899/dashboard">localhost:8899/dashboard</a> (self-hosted)</p>
 
 <details>
   <summary><strong style="color:#e2e8f0;">Host a SafeClaw Workshop</strong> &mdash; for instructors and organizers</summary>
