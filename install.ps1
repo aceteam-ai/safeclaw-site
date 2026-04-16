@@ -3,7 +3,7 @@
 
 Write-Host ""
 Write-Host "  SafeClaw" -ForegroundColor Cyan
-Write-Host "  The safe version of OpenClaw" -ForegroundColor DarkGray
+Write-Host "  Run AI agents safely - OpenClaw + AEP safety proxy" -ForegroundColor DarkGray
 Write-Host ""
 
 $containerCmd = ""
@@ -13,46 +13,174 @@ if ((Get-Command podman -ErrorAction SilentlyContinue) -and (podman info 2>$null
     $containerCmd = "docker"
 }
 
-Write-Host "  How do you want to run SafeClaw?"
+function Install-ContainerRuntime {
+    Write-Host ""
+    Write-Host "  No container runtime (Docker/Podman) detected." -ForegroundColor Yellow
+    Write-Host ""
+
+    # Try winget first, then choco
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "  Installing Docker Desktop via winget..." -ForegroundColor Cyan
+        winget install -e --id Docker.DockerDesktop --accept-package-agreements --accept-source-agreements
+        Write-Host ""
+        Write-Host "  Docker Desktop installed. Please launch it from the Start menu," -ForegroundColor Yellow
+        Write-Host "  then re-run this installer." -ForegroundColor Yellow
+        exit 0
+    } elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+        Write-Host "  Installing Docker Desktop via Chocolatey..." -ForegroundColor Cyan
+        choco install docker-desktop -y
+        Write-Host ""
+        Write-Host "  Docker Desktop installed. Please launch it from the Start menu," -ForegroundColor Yellow
+        Write-Host "  then re-run this installer." -ForegroundColor Yellow
+        exit 0
+    } else {
+        Write-Host "  Install Docker Desktop manually:" -ForegroundColor Red
+        Write-Host "    https://docs.docker.com/desktop/install/windows/"
+        Write-Host "  Or install Podman:"
+        Write-Host "    https://podman.io/docs/installation"
+        exit 1
+    }
+}
+
+Write-Host "  What is SafeClaw?" -ForegroundColor White
+Write-Host "  SafeClaw = OpenClaw (AI agent platform) + AEP (safety proxy)." -ForegroundColor DarkGray
+Write-Host "  The agent runs in a container. The proxy blocks dangerous actions," -ForegroundColor DarkGray
+Write-Host "  tracks cost, and signs every decision. Your files stay safe." -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  [1] Container ($($containerCmd if ($containerCmd) else "Podman/Docker")) - recommended" -ForegroundColor Cyan
-Write-Host "  [2] pip install - runs on host, developer mode" -ForegroundColor Cyan
+Write-Host "  What do you want to install?" -ForegroundColor White
+Write-Host ""
+Write-Host "  [1] Full SafeClaw (recommended)" -ForegroundColor Cyan
+Write-Host "      OpenClaw agent + AEP safety proxy, all in containers" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  [2] Safety proxy only" -ForegroundColor Cyan
+Write-Host "      For existing agents (Claude Code, CrewAI, LangChain, etc.)" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  [3] pip install (developer mode)" -ForegroundColor Cyan
+Write-Host "      Runs on host, no container - for development/hacking" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  [4] I already have it installed" -ForegroundColor Cyan
 Write-Host ""
 $choice = Read-Host "  Choice [1]"
 if ($null -eq $choice -or $choice -eq "") { $choice = "1" }
 
 if ($choice -eq "1") {
+    # Full SafeClaw
     if (-not $containerCmd) {
-        Write-Host "  No container runtime found." -ForegroundColor Red
-        Write-Host "  Install Podman: https://podman.io/docs/installation"
-        Write-Host "  Or Docker Desktop: https://docs.docker.com/desktop/install/windows/"
-        exit 1
+        $yn = Read-Host "  Container runtime required. Install one now? [Y/n]"
+        if ($null -eq $yn -or $yn -eq "" -or $yn -match "^[Yy]") {
+            Install-ContainerRuntime
+        } else {
+            Write-Host "  Install Docker Desktop: https://docs.docker.com/desktop/install/windows/"
+            exit 1
+        }
     }
 
-    Write-Host "  Pulling SafeClaw proxy image..." -ForegroundColor Cyan
+    $safePath = Join-Path $HOME "safeclaw"
+    if (-not (Test-Path $safePath)) { New-Item -Path $safePath -ItemType Directory | Out-Null }
+
+    Write-Host ""
+    Write-Host "  Pulling SafeClaw images via $containerCmd..." -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "    [1/2] OpenClaw agent image" -ForegroundColor DarkGray
+    & $containerCmd pull ghcr.io/aceteam-ai/safeclaw:latest
+    Write-Host "    [2/2] AEP safety proxy image" -ForegroundColor DarkGray
     & $containerCmd pull ghcr.io/aceteam-ai/aep-proxy:latest
 
-    $safePath = Join-Path $HOME "safeclaw"
-    if (-not (Test-Path $safePath)) {
-        New-Item -Path $safePath -ItemType Directory
+    # Download compose files
+    $composeFile = Join-Path $safePath "docker-compose.yml"
+    $safeComposeFile = Join-Path $safePath "docker-compose.safe.yml"
+    if (-not (Test-Path $composeFile)) {
+        Write-Host "    Downloading compose files..." -ForegroundColor DarkGray
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/docker-compose.yml" -OutFile $composeFile -UseBasicParsing
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/docker-compose.safe.yml" -OutFile $safeComposeFile -UseBasicParsing
+        try {
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/.env.example" -OutFile (Join-Path $safePath ".env.example") -UseBasicParsing
+        } catch {}
+    }
+
+    # Create .env if missing
+    $envFile = Join-Path $safePath ".env"
+    if (-not (Test-Path $envFile)) {
+        $envExample = Join-Path $safePath ".env.example"
+        if (Test-Path $envExample) {
+            Copy-Item $envExample $envFile
+        } else {
+            @"
+# SafeClaw environment - add your API keys here
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest
+OPENCLAW_CONFIG_DIR=./config
+OPENCLAW_WORKSPACE_DIR=./workspace
+"@ | Out-File -FilePath $envFile -Encoding utf8
+        }
+        New-Item -Path (Join-Path $safePath "config") -ItemType Directory -Force | Out-Null
+        New-Item -Path (Join-Path $safePath "workspace") -ItemType Directory -Force | Out-Null
     }
 
     Write-Host ""
     Write-Host "  Ready." -ForegroundColor Green
     Write-Host ""
+    Write-Host "  SafeClaw = OpenClaw + AEP safety proxy" -ForegroundColor White
+    Write-Host "  The agent runs in a container. It cannot access your files," -ForegroundColor DarkGray
+    Write-Host "  email, or credentials. The safety proxy blocks dangerous" -ForegroundColor DarkGray
+    Write-Host "  actions before they execute." -ForegroundColor DarkGray
+    Write-Host ""
     Write-Host "  Start SafeClaw:" -ForegroundColor Cyan
     Write-Host ""
+    Write-Host "    cd $safePath"
+    Write-Host "    # Add your API keys to .env first"
+    Write-Host "    $containerCmd compose -f docker-compose.yml -f docker-compose.safe.yml up"
+    Write-Host ""
+    Write-Host "  Dashboard:  http://localhost:8899/aep/"
+    Write-Host "  Agent UI:   http://localhost:18789/"
+    Write-Host "  API Keys:   Edit $safePath\.env"
+    Write-Host "  Workspace:  $safePath\workspace"
+
+} elseif ($choice -eq "2") {
+    # Safety proxy only
+    if (-not $containerCmd) {
+        $yn = Read-Host "  Container runtime required. Install one now? [Y/n]"
+        if ($null -eq $yn -or $yn -eq "" -or $yn -match "^[Yy]") {
+            Install-ContainerRuntime
+        } else {
+            Write-Host "  Install Docker Desktop: https://docs.docker.com/desktop/install/windows/"
+            exit 1
+        }
+    }
+
+    Write-Host "  Pulling AEP safety proxy image..." -ForegroundColor Cyan
+    & $containerCmd pull ghcr.io/aceteam-ai/aep-proxy:latest
+
+    $safePath = Join-Path $HOME "safeclaw"
+    if (-not (Test-Path $safePath)) { New-Item -Path $safePath -ItemType Directory | Out-Null }
+
+    Write-Host ""
+    Write-Host "  Ready." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "  Safety proxy installed." -ForegroundColor White
+    Write-Host "  This adds safety to any existing agent (Claude Code, CrewAI," -ForegroundColor DarkGray
+    Write-Host "  LangChain, etc.) - it sits between your agent and the LLM." -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Start the safety proxy:" -ForegroundColor Cyan
+    Write-Host ""
     Write-Host "    $containerCmd run -p 8899:8899 -v ${safePath}:/workspace ghcr.io/aceteam-ai/aep-proxy"
+    Write-Host ""
+    Write-Host "  Then point your agent at the proxy:" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "    `$env:OPENAI_BASE_URL = 'http://localhost:8899/v1'"
     Write-Host ""
     Write-Host "  Dashboard:  http://localhost:8899/aep/"
     Write-Host "  API Keys:   Configure in Dashboard > Settings"
     Write-Host "  Workspace:  $safePath"
-} elseif ($choice -eq "2") {
+    Write-Host ""
+    Write-Host "  Want the full agent too? Re-run this installer and choose option 1." -ForegroundColor DarkGray
+
+} elseif ($choice -eq "3") {
+    # pip install
     Write-Host "  Installing aceteam-aep via pip..." -ForegroundColor Cyan
-    # Try multiple ways to install pip packages on Windows, including user install and breaking system packages logic (less common on Windows but good for consistency)
     $pipArgs = @("install", "aceteam-aep[all]", "--quiet")
 
-    # Check if we should try a user install
     try {
         & python -m pip $pipArgs --user
     } catch {
@@ -67,15 +195,37 @@ if ($choice -eq "1") {
     Write-Host ""
     Write-Host "  Ready." -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Start SafeClaw (container - recommended):" -ForegroundColor Cyan
+    Write-Host "  AEP safety proxy installed (pip / developer mode)." -ForegroundColor White
+    Write-Host "  This installs only the safety proxy, not the full OpenClaw agent." -ForegroundColor DarkGray
+    Write-Host "  For the full SafeClaw stack, re-run and choose option 1." -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "    docker run -p 8899:8899 -v ~/safeclaw:/workspace ghcr.io/aceteam-ai/aep-proxy"
-    Write-Host ""
-    Write-Host "  Start SafeClaw (pip - developer mode):" -ForegroundColor Cyan
+    Write-Host "  Start the safety proxy:" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "    aceteam-aep proxy --port 8899"
     Write-Host ""
+    Write-Host "  Or wrap any agent:" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "    aceteam-aep wrap -- python my_agent.py"
+    Write-Host ""
     Write-Host "  Dashboard: http://localhost:8899/aep/"
+
+} elseif ($choice -eq "4") {
+    Write-Host "  Great." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "  Full SafeClaw (recommended):" -ForegroundColor Cyan
+    Write-Host "    cd ~/safeclaw"
+    Write-Host "    docker compose -f docker-compose.yml -f docker-compose.safe.yml up"
+    Write-Host ""
+    Write-Host "  Safety proxy only:" -ForegroundColor Cyan
+    Write-Host "    docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy"
+    Write-Host ""
+    Write-Host "  pip (developer mode):" -ForegroundColor Cyan
+    Write-Host "    aceteam-aep proxy --port 8899"
+    Write-Host ""
+    Write-Host "  Dashboard: http://localhost:8899/aep/"
+} else {
+    Write-Host "  Invalid choice. Run this script again." -ForegroundColor Red
+    exit 1
 }
 
 Write-Host ""
