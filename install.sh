@@ -260,7 +260,7 @@ ENVEOF
         echo "    # Add your API keys to .env first"
         echo "    $CONTAINER_CMD compose -f docker-compose.yml -f docker-compose.safe.yml up"
         echo ""
-        echo -e "  ${CYAN}Dashboard:${NC}       http://localhost:8899/aep/"
+        echo -e "  ${CYAN}Dashboard:${NC}       http://localhost:8899/dashboard/"
         echo -e "  ${CYAN}Agent UI:${NC}        http://localhost:18789/"
         echo -e "  ${CYAN}API Keys:${NC}        Edit ~/safeclaw/.env"
         echo -e "  ${CYAN}Workspace:${NC}       ~/safeclaw/workspace"
@@ -306,7 +306,7 @@ ENVEOF
         echo ""
         echo "    export OPENAI_BASE_URL=http://localhost:8899/v1"
         echo ""
-        echo -e "  ${CYAN}Dashboard:${NC}  http://localhost:8899/aep/"
+        echo -e "  ${CYAN}Dashboard:${NC}  http://localhost:8899/dashboard/"
         echo -e "  ${CYAN}API Keys:${NC}   Configure in Dashboard > Settings"
         echo -e "  ${CYAN}Workspace:${NC}  ~/safeclaw"
         echo ""
@@ -371,7 +371,7 @@ ENVEOF
         echo ""
         echo "    aceteam-aep wrap -- python my_agent.py"
         echo ""
-        echo -e "  ${CYAN}Dashboard:${NC} http://localhost:8899/aep/"
+        echo -e "  ${CYAN}Dashboard:${NC} http://localhost:8899/dashboard/"
         ;;
     4)
         echo -e "  ${GREEN}Great.${NC}"
@@ -385,7 +385,7 @@ ENVEOF
         echo -e "  ${CYAN}pip (developer mode):${NC}"
         echo "    aceteam-aep proxy --port 8899"
         echo ""
-        echo -e "  Dashboard: http://localhost:8899/aep/"
+        echo -e "  Dashboard: http://localhost:8899/dashboard/"
         ;;
     *)
         echo -e "  ${RED}Invalid choice.${NC} Run this script again."

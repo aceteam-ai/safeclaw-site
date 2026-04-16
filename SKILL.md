@@ -97,7 +97,7 @@ If the user already made the choice, do not ask again.
 1. Ask for `{PROXY_URL}`.
 2. Validate with:
    ```
-   curl -sf --max-time 5 {PROXY_URL}/aep/api/state
+   curl -sf --max-time 5 {PROXY_URL}/dashboard/api/state
    ```
 3. Continue only if the response is JSON containing `calls`.
 
@@ -162,7 +162,7 @@ If the user declines or the install still fails, stop and tell the user exactly 
 
 After startup, verify:
 ```
-curl -sf {PROXY_URL}/aep/api/state
+curl -sf {PROXY_URL}/dashboard/api/state
 ```
 Retry every 2 seconds for up to about 15 seconds.
 
@@ -231,7 +231,7 @@ Then do as much of the next step yourself as possible. For example, if the user 
 
 Run:
 ```
-curl -sf --max-time 5 {PROXY_URL}/aep/api/state
+curl -sf --max-time 5 {PROXY_URL}/dashboard/api/state
 ```
 Retry up to 3 times with short gaps.
 
@@ -263,7 +263,7 @@ Interpret results:
 
 Then re-check:
 ```
-curl -s {PROXY_URL}/aep/api/state
+curl -s {PROXY_URL}/dashboard/api/state
 ```
 Confirm `calls > 0`.
 
@@ -288,7 +288,7 @@ Use wording like:
 SafeClaw proxy is running.
 
 Proxy:     {PROXY_URL}/v1
-Dashboard: {PROXY_URL}/aep/
+Dashboard: {PROXY_URL}/dashboard/
 Safety:    {ON|ACTIVE}
 Test call: {BLOCKED ($0.000)|PASS ($X.XXX)|AUTH ISSUE|UNVERIFIED}
 Routing:   {gateway config|agent models.json|shell env only|hosted proxy only}

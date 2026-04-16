@@ -131,7 +131,7 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host "    # Add your API keys to .env first"
     Write-Host "    $containerCmd compose -f docker-compose.yml -f docker-compose.safe.yml up"
     Write-Host ""
-    Write-Host "  Dashboard:  http://localhost:8899/aep/"
+    Write-Host "  Dashboard:  http://localhost:8899/dashboard/"
     Write-Host "  Agent UI:   http://localhost:18789/"
     Write-Host "  API Keys:   Edit $safePath\.env"
     Write-Host "  Workspace:  $safePath\workspace"
@@ -169,7 +169,7 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host ""
     Write-Host "    `$env:OPENAI_BASE_URL = 'http://localhost:8899/v1'"
     Write-Host ""
-    Write-Host "  Dashboard:  http://localhost:8899/aep/"
+    Write-Host "  Dashboard:  http://localhost:8899/dashboard/"
     Write-Host "  API Keys:   Configure in Dashboard > Settings"
     Write-Host "  Workspace:  $safePath"
     Write-Host ""
@@ -206,7 +206,7 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host ""
     Write-Host "    aceteam-aep wrap -- python my_agent.py"
     Write-Host ""
-    Write-Host "  Dashboard: http://localhost:8899/aep/"
+    Write-Host "  Dashboard: http://localhost:8899/dashboard/"
 
 } elseif ($choice -eq "4") {
     Write-Host "  Great." -ForegroundColor Green
@@ -221,7 +221,7 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host "  pip (developer mode):" -ForegroundColor Cyan
     Write-Host "    aceteam-aep proxy --port 8899"
     Write-Host ""
-    Write-Host "  Dashboard: http://localhost:8899/aep/"
+    Write-Host "  Dashboard: http://localhost:8899/dashboard/"
 } else {
     Write-Host "  Invalid choice. Run this script again." -ForegroundColor Red
     exit 1
