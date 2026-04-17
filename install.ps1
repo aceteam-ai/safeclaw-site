@@ -4,7 +4,7 @@
 
 Write-Host ""
 Write-Host "  SafeClaw" -ForegroundColor Cyan
-Write-Host "  Run AI agents safely - OpenClaw + AEP safety proxy" -ForegroundColor DarkGray
+Write-Host "  Run AI agents safely - OpenClaw + Agent Safety Net" -ForegroundColor DarkGray
 Write-Host ""
 
 $containerCmd = ""
@@ -51,7 +51,7 @@ Write-Host ""
 Write-Host "  What do you want to install?" -ForegroundColor White
 Write-Host ""
 Write-Host "  [1] Full SafeClaw (recommended)" -ForegroundColor Cyan
-Write-Host "      OpenClaw agent + AEP safety proxy, all in containers" -ForegroundColor DarkGray
+Write-Host "      OpenClaw agent + Agent Safety Net, all in containers" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  [2] Safety proxy only" -ForegroundColor Cyan
 Write-Host "      For existing agents (Claude Code, CrewAI, LangChain, etc.)" -ForegroundColor DarkGray
@@ -84,7 +84,7 @@ if ($choice -eq "1") {
     Write-Host ""
     Write-Host "    [1/2] OpenClaw agent image" -ForegroundColor DarkGray
     & $containerCmd pull ghcr.io/aceteam-ai/safeclaw:latest
-    Write-Host "    [2/2] AEP safety proxy image" -ForegroundColor DarkGray
+    Write-Host "    [2/2] Agent Safety Net image" -ForegroundColor DarkGray
     & $containerCmd pull ghcr.io/aceteam-ai/aep-proxy:latest
 
     # Always download/update compose files (idempotent)
@@ -120,7 +120,7 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host ""
     Write-Host "  Ready." -ForegroundColor Green
     Write-Host ""
-    Write-Host "  SafeClaw = OpenClaw + AEP safety proxy" -ForegroundColor White
+    Write-Host "  SafeClaw = OpenClaw + Agent Safety Net" -ForegroundColor White
     Write-Host "  The agent runs in a container. It cannot access your files," -ForegroundColor DarkGray
     Write-Host "  email, or credentials. The safety proxy blocks dangerous" -ForegroundColor DarkGray
     Write-Host "  actions before they execute." -ForegroundColor DarkGray
@@ -148,7 +148,7 @@ OPENCLAW_WORKSPACE_DIR=./workspace
         }
     }
 
-    Write-Host "  Pulling AEP safety proxy image..." -ForegroundColor Cyan
+    Write-Host "  Pulling Agent Safety Net image..." -ForegroundColor Cyan
     & $containerCmd pull ghcr.io/aceteam-ai/aep-proxy:latest
 
     $safePath = Join-Path $HOME "safeclaw"
@@ -209,7 +209,7 @@ OPENCLAW_WORKSPACE_DIR=./workspace
     Write-Host ""
     Write-Host "  Ready." -ForegroundColor Green
     Write-Host ""
-    Write-Host "  AEP safety proxy cloned to $repoDir." -ForegroundColor White
+    Write-Host "  Agent Safety Net cloned to $repoDir." -ForegroundColor White
     Write-Host "  Run commands from the repo with 'uv run'. Edit the source and re-run to iterate." -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Start the safety proxy:" -ForegroundColor Cyan

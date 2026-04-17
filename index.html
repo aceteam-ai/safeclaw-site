@@ -111,7 +111,7 @@
   Your AI agent just spent $135K. Deleted an inbox. Leaked a credit card number.<br>
   <strong>Turn safety on.</strong>
 </p>
-<p style="font-size:14px; color:#64748b; margin-bottom:24px;">SafeClaw = <strong style="color:#94a3b8;">OpenClaw</strong> (AI agent) + <strong style="color:#94a3b8;">AEP</strong> (safety proxy). The agent runs in a container. The proxy blocks dangerous actions, tracks cost, and signs every decision.</p>
+<p style="font-size:14px; color:#64748b; margin-bottom:24px;">SafeClaw = <strong style="color:#94a3b8;">OpenClaw</strong> (AI agent) + <strong style="color:#94a3b8;">Agent Safety Net</strong> (local proxy). The agent runs in a container. The safety net blocks dangerous actions, tracks cost, and signs every decision.</p>
 
 <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px;">
   <a class="github-button" href="https://github.com/aceteam-ai/aceteam-aep" data-color-scheme="no-preference: dark; light: dark; dark: dark;" data-size="large" data-show-count="true" aria-label="Star aceteam-ai/aceteam-aep on GitHub">Star on GitHub</a>
@@ -203,7 +203,7 @@
 <h2 id="self-host">Self-Host Setup</h2>
 
 <div class="note" style="margin-bottom:24px;">
-  <strong>What gets installed?</strong> The installer gives you two things: <strong style="color:#e2e8f0;">OpenClaw</strong> (the AI agent platform) and the <strong style="color:#e2e8f0;">AEP safety proxy</strong> (blocks threats, tracks cost, signs verdicts). Together, that's SafeClaw. Your data stays on your machine &mdash; nothing touches our servers. You use your own API keys, so it costs $0 beyond what you already pay your LLM provider.
+  <strong>What gets installed?</strong> The installer gives you two things: <strong style="color:#e2e8f0;">OpenClaw</strong> (the AI agent platform) and the <strong style="color:#e2e8f0;">Agent Safety Net</strong> (blocks threats, tracks cost, signs verdicts). Together, that's SafeClaw. Your data stays on your machine &mdash; nothing touches our servers. You use your own API keys, so it costs $0 beyond what you already pay your LLM provider.
 </div>
 
 <div style="margin-bottom:24px;">
@@ -303,7 +303,7 @@ function switchPersona(which) {
         <button class="copy" onclick="navigator.clipboard.writeText('docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy')">Copy</button>
         docker run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy
       </div>
-      <p style="font-size:13px; color:#64748b;">This runs just the AEP safety proxy. For the full agent, use <code style="color:#38bdf8;">docker compose</code> (see below).</p>
+      <p style="font-size:13px; color:#64748b;">This runs just the safety net. For the full agent, use <code style="color:#38bdf8;">docker compose</code> (see below).</p>
     </div>
     <div class="step">
       <div class="step-num">Full SafeClaw (OpenClaw + Safety)</div>
@@ -338,9 +338,9 @@ function switchPersona(which) {
   </div>
   <p style="font-size:13px; color:#64748b;">Every LLM call from any tool (Claude Code, OpenClaw, CrewAI, LangChain) now routes through SafeClaw before reaching the provider.</p>
   <details style="margin-top:12px;">
-    <summary>Already have OpenClaw? Point it at AEP manually</summary>
+    <summary>Already have OpenClaw? Wire it to the safety net manually</summary>
     <div class="inner">
-      <p style="font-size:13px; margin-top:10px;">If OpenClaw is already installed, wire it to a running AEP proxy via its config TUI:</p>
+      <p style="font-size:13px; margin-top:10px;">If OpenClaw is already installed, point it at a running Agent Safety Net via its config TUI:</p>
       <div class="code">
         <button class="copy" onclick="navigator.clipboard.writeText('uv sync --extra proxy')">Copy</button>
         uv sync --extra proxy
@@ -358,7 +358,7 @@ function switchPersona(which) {
         <li><strong style="color:#e2e8f0;">Endpoint compatibility</strong> &rarr; whatever you want</li>
         <li><strong style="color:#e2e8f0;">Model ID</strong> &rarr; whatever model you want (e.g. <code style="color:#38bdf8;">gpt-4o</code>)</li>
       </ol>
-      <p style="font-size:12px; color:#64748b; margin-top:8px;">OpenClaw will now route every call through AEP. Start a new session for the change to take effect.</p>
+      <p style="font-size:12px; color:#64748b; margin-top:8px;">OpenClaw will now route every call through the safety net. Start a new session for the change to take effect.</p>
     </div>
   </details>
 </div>
@@ -542,7 +542,7 @@ function switchPersona(which) {
 
 <div class="links">
   <a href="https://github.com/aceteam-ai/safeclaw">GitHub</a>
-  <a href="https://github.com/aceteam-ai/aceteam-aep">AEP Protocol</a>
+  <a href="https://github.com/aceteam-ai/aceteam-aep">Safety Net (AEP)</a>
   <a href="https://pypi.org/project/aceteam-aep/">PyPI</a>
   <a href="https://aceteam.ai">AceTeam Platform</a>
 </div>
@@ -567,6 +567,9 @@ function switchPersona(which) {
 
 <div class="footer">
   SafeClaw by <a href="https://aceteam.ai">AceTeam</a> &middot; Open source (Apache 2.0) &middot; <a href="mailto:jason@aceteam.ai">Contact</a>
+  <p style="margin-top:10px; font-size:11px; color:#64748b; line-height:1.6;">
+    The Agent Safety Net is powered by <a href="https://github.com/aceteam-ai/aceteam-aep" style="color:#64748b; text-decoration:underline;">AEP</a> (Agentic Execution Protocol) &mdash; an open standard for governing every LLM call an agent makes: cost tracking, PII detection, policy enforcement, and signed audit trails.
+  </p>
 </div>
 
 </div>

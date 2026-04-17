@@ -3,7 +3,7 @@
 #
 # Usage: curl -fsSL https://safeclaw.sh/install.sh | bash
 #
-# SafeClaw = OpenClaw + AEP safety proxy.
+# SafeClaw = OpenClaw + Agent Safety Net.
 # This script installs everything you need to run AI agents safely.
 # Safe to run multiple times — existing config is preserved.
 
@@ -19,7 +19,7 @@ NC='\033[0m'
 
 echo ""
 echo -e "${BOLD}${CYAN}  SafeClaw${NC}"
-echo -e "${DIM}  Run AI agents safely — OpenClaw + AEP safety proxy${NC}"
+echo -e "${DIM}  Run AI agents safely — OpenClaw + Agent Safety Net${NC}"
 echo ""
 
 # ---------------------------------------------------------------------------
@@ -141,7 +141,7 @@ if [ -t 1 ]; then
     echo -e "  ${BOLD}What do you want to install?${NC}"
     echo ""
     echo -e "  ${CYAN}[1]${NC} ${BOLD}Full SafeClaw${NC} ${GREEN}(recommended)${NC}"
-    echo -e "      ${DIM}OpenClaw agent + AEP safety proxy, all in containers${NC}"
+    echo -e "      ${DIM}OpenClaw agent + Agent Safety Net, all in containers${NC}"
     echo ""
     echo -e "  ${CYAN}[2]${NC} ${BOLD}Safety proxy only${NC}"
     echo -e "      ${DIM}For existing agents (Claude Code, CrewAI, LangChain, etc.)${NC}"
@@ -190,7 +190,7 @@ case "$choice" in
 
         echo ""
         echo -e "  ${CYAN}Pulling SafeClaw images in parallel via ${CONTAINER_CMD}...${NC}"
-        echo -e "  ${DIM}  AEP safety proxy (smaller, demo-ready first)${NC}"
+        echo -e "  ${DIM}  Agent Safety Net (smaller, demo-ready first)${NC}"
         echo -e "  ${DIM}  OpenClaw agent${NC}"
         echo ""
 
@@ -205,9 +205,9 @@ case "$choice" in
 
         # Report proxy first since it should finish first
         if wait "$PROXY_PID"; then
-            echo -e "  ${GREEN}AEP safety proxy pulled.${NC}"
+            echo -e "  ${GREEN}Agent Safety Net pulled.${NC}"
         else
-            echo -e "  ${RED}AEP safety proxy pull failed.${NC}"
+            echo -e "  ${RED}Agent Safety Net pull failed.${NC}"
             tail -5 "$PROXY_LOG" | sed 's/^/    /'
         fi
 
@@ -249,7 +249,7 @@ ENVEOF
         echo ""
         echo -e "  ${GREEN}${BOLD}Ready.${NC}"
         echo ""
-        echo -e "  ${BOLD}SafeClaw = OpenClaw + AEP safety proxy${NC}"
+        echo -e "  ${BOLD}SafeClaw = OpenClaw + Agent Safety Net${NC}"
         echo -e "  ${DIM}The agent runs in a container. It cannot access your files,${NC}"
         echo -e "  ${DIM}email, or credentials. The safety proxy blocks dangerous${NC}"
         echo -e "  ${DIM}actions before they execute.${NC}"
@@ -286,7 +286,7 @@ ENVEOF
             fi
         fi
 
-        echo -e "  ${CYAN}Pulling AEP safety proxy image via ${CONTAINER_CMD}...${NC}"
+        echo -e "  ${CYAN}Pulling Agent Safety Net image via ${CONTAINER_CMD}...${NC}"
         $CONTAINER_CMD pull ghcr.io/aceteam-ai/aep-proxy:latest 2>&1 | tail -3
 
         mkdir -p "$HOME/safeclaw"
@@ -353,7 +353,7 @@ ENVEOF
         echo ""
         echo -e "  ${GREEN}${BOLD}Ready.${NC}"
         echo ""
-        echo -e "  ${BOLD}AEP safety proxy cloned to ${REPO_DIR}.${NC}"
+        echo -e "  ${BOLD}Agent Safety Net cloned to ${REPO_DIR}.${NC}"
         echo -e "  ${DIM}Run commands from the repo with 'uv run'. Edit the source and re-run to iterate.${NC}"
         echo ""
         echo -e "  ${CYAN}Start the safety proxy:${NC}"
