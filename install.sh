@@ -65,28 +65,62 @@ install_container_runtime() {
 
     case "$os" in
         Darwin)
-            if command -v brew &>/dev/null; then
-                echo -e "  ${CYAN}Installing Podman via Homebrew...${NC}"
-                echo -e "  ${DIM}(Free, no Docker Desktop license required)${NC}"
-                brew install podman
+            if ! command -v brew &>/dev/null; then
+                echo -e "  ${YELLOW}Homebrew not installed on this Mac.${NC}"
+                echo -e "  ${DIM}Homebrew is the cleanest way to install Podman (no Docker Desktop license).${NC}"
                 echo ""
-                echo -e "  ${CYAN}Initializing Podman machine...${NC}"
-                podman machine init 2>/dev/null || true
-                podman machine start 2>/dev/null || true
-                if podman info &>/dev/null; then
-                    CONTAINER_CMD="podman"
-                    echo -e "  ${GREEN}Podman is ready.${NC}"
-                else
-                    echo -e "  ${YELLOW}Podman installed. Start it manually, then re-run:${NC}"
-                    echo "    podman machine init && podman machine start"
-                    exit 0
+
+                local install_brew="Y"
+                if [ -t 1 ]; then
+                    printf "  Install Homebrew now? Runs the official installer from brew.sh [Y/n]: "
+                    read -r install_brew </dev/tty
+                    install_brew=${install_brew:-Y}
                 fi
+
+                if [[ "$install_brew" =~ ^[Yy] ]]; then
+                    echo -e "  ${CYAN}Installing Homebrew...${NC}"
+                    echo -e "  ${DIM}(You'll be prompted for your password. First run may also install Xcode Command Line Tools.)${NC}"
+                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+                        echo -e "  ${RED}Homebrew installer failed.${NC} Install it manually from https://brew.sh then re-run."
+                        exit 1
+                    }
+
+                    # Homebrew doesn't add itself to PATH in the current shell — source it explicitly
+                    if [ -x "/opt/homebrew/bin/brew" ]; then
+                        eval "$(/opt/homebrew/bin/brew shellenv)"
+                    elif [ -x "/usr/local/bin/brew" ]; then
+                        eval "$(/usr/local/bin/brew shellenv)"
+                    fi
+
+                    if ! command -v brew &>/dev/null; then
+                        echo -e "  ${RED}Homebrew installed but 'brew' isn't on PATH in this shell.${NC}"
+                        echo -e "  ${DIM}Open a new terminal and re-run this installer.${NC}"
+                        exit 1
+                    fi
+                    echo -e "  ${GREEN}Homebrew installed.${NC}"
+                    echo ""
+                else
+                    echo "  Install Homebrew yourself: https://brew.sh"
+                    echo "  Or install Podman manually: https://podman.io/docs/installation"
+                    echo "  Or install Docker: https://docs.docker.com/desktop/install/mac/"
+                    exit 1
+                fi
+            fi
+
+            echo -e "  ${CYAN}Installing Podman via Homebrew...${NC}"
+            echo -e "  ${DIM}(Free, no Docker Desktop license required)${NC}"
+            brew install podman
+            echo ""
+            echo -e "  ${CYAN}Initializing Podman machine...${NC}"
+            podman machine init 2>/dev/null || true
+            podman machine start 2>/dev/null || true
+            if podman info &>/dev/null; then
+                CONTAINER_CMD="podman"
+                echo -e "  ${GREEN}Podman is ready.${NC}"
             else
-                echo -e "  ${RED}Homebrew not found.${NC} Install Podman manually:"
-                echo "    https://podman.io/docs/installation"
-                echo "  Or install Docker:"
-                echo "    https://docs.docker.com/desktop/install/mac/"
-                exit 1
+                echo -e "  ${YELLOW}Podman installed. Start it manually, then re-run:${NC}"
+                echo "    podman machine init && podman machine start"
+                exit 0
             fi
             ;;
         Linux)
