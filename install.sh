@@ -180,20 +180,23 @@ if [ -t 1 ]; then
     echo -e "  ${CYAN}[2]${NC} ${BOLD}Safety proxy only${NC}"
     echo -e "      ${DIM}For existing agents (Claude Code, CrewAI, LangChain, etc.)${NC}"
     echo ""
-    echo -e "  ${CYAN}[3]${NC} ${BOLD}Developer mode (git clone + uv sync)${NC}"
+    echo -e "  ${CYAN}[3]${NC} ${BOLD}OpenClaw only${NC} ${YELLOW}(no local proxy)${NC}"
+    echo -e "      ${DIM}Agent only — choose hosted AceTeam gateway or truly raw LLM calls${NC}"
+    echo ""
+    echo -e "  ${CYAN}[4]${NC} ${BOLD}Developer mode (git clone + uv sync)${NC}"
     echo -e "      ${DIM}Clone aceteam-aep and run from source — for hacking on the proxy${NC}"
     echo ""
-    echo -e "  ${CYAN}[4]${NC} ${BOLD}I already have it installed${NC}"
+    echo -e "  ${CYAN}[5]${NC} ${BOLD}I already have it installed${NC}"
     echo ""
     printf "  Choice [1]: "
     read -r choice </dev/tty
     choice=${choice:-1}
 else
-    # Non-interactive (piped) — default to full SafeClaw if container available, else proxy
+    # Non-interactive (piped) — default to full SafeClaw if container available, else dev mode
     if [ -n "$CONTAINER_CMD" ]; then
         choice=1
     else
-        choice=3
+        choice=4
     fi
 fi
 
@@ -263,12 +266,13 @@ case "$choice" in
         curl -fsSL "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/.env.example" \
             -o "$SAFECLAW_DIR/.env.example" 2>/dev/null || true
 
-        # Create .env if missing
+        # Create .env if missing.
+        # Don't copy .env.example from the safeclaw repo — it's OpenClaw-only
+        # and lacks OPENCLAW_IMAGE / OPENCLAW_CONFIG_DIR / OPENCLAW_WORKSPACE_DIR
+        # which docker-compose.yml requires (no defaults), so compose fails.
+        mkdir -p "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace"
         if [ ! -f "$SAFECLAW_DIR/.env" ]; then
-            if [ -f "$SAFECLAW_DIR/.env.example" ]; then
-                cp "$SAFECLAW_DIR/.env.example" "$SAFECLAW_DIR/.env"
-            else
-                cat > "$SAFECLAW_DIR/.env" <<'ENVEOF'
+            cat > "$SAFECLAW_DIR/.env" <<'ENVEOF'
 # SafeClaw environment — add your API keys here
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
@@ -276,9 +280,18 @@ OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest
 OPENCLAW_CONFIG_DIR=./config
 OPENCLAW_WORKSPACE_DIR=./workspace
 ENVEOF
-            fi
-            mkdir -p "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace"
         fi
+
+        # Drop a minimal OpenClaw config so the gateway boots without `openclaw setup`.
+        if [ ! -f "$SAFECLAW_DIR/config/openclaw.json" ]; then
+            echo '{ "gateway": { "mode": "local" } }' > "$SAFECLAW_DIR/config/openclaw.json"
+        fi
+
+        # Container runs as UID 1000 (node user); host UID varies. On Linux the
+        # mismatch blocks the container from rewriting openclaw.json atomically.
+        # Docker Desktop on macOS handles this transparently, but chmod is
+        # harmless there and necessary on Linux.
+        chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
 
         echo ""
         echo -e "  ${GREEN}${BOLD}Ready.${NC}"
@@ -288,11 +301,10 @@ ENVEOF
         echo -e "  ${DIM}email, or credentials. The safety proxy blocks dangerous${NC}"
         echo -e "  ${DIM}actions before they execute.${NC}"
         echo ""
-        echo -e "  ${CYAN}Start SafeClaw:${NC}"
+        echo -e "  ${CYAN}1) Add your API keys:${NC}  ${DIM}\$EDITOR ~/safeclaw/.env${NC}"
+        echo -e "  ${CYAN}2) Start SafeClaw:${NC}"
         echo ""
-        echo "    cd ~/safeclaw"
-        echo "    # Add your API keys to .env first"
-        echo "    $CONTAINER_CMD compose -f docker-compose.yml -f docker-compose.safe.yml up"
+        echo "    cd ~/safeclaw && $CONTAINER_CMD compose -f docker-compose.yml -f docker-compose.safe.yml up"
         echo ""
         echo -e "  ${CYAN}Dashboard:${NC}       http://localhost:8899/dashboard/"
         echo -e "  ${CYAN}Agent UI:${NC}        http://localhost:18789/"
@@ -347,6 +359,133 @@ ENVEOF
         echo -e "  ${DIM}Want the full agent too? Re-run this installer and choose option 1.${NC}"
         ;;
     3)
+        # OpenClaw only (no local proxy). Sub-prompt lets the user route through
+        # AceTeam's hosted safety gateway instead of running a local proxy
+        # container — trade-off is calls leave the machine, but zero local setup.
+        if [ -z "$CONTAINER_CMD" ]; then
+            if [ -t 1 ]; then
+                echo ""
+                printf "  Container runtime required. Install one now? [Y/n]: "
+                read -r yn </dev/tty
+                yn=${yn:-Y}
+                if [[ "$yn" =~ ^[Yy] ]]; then
+                    install_container_runtime
+                else
+                    echo ""
+                    echo "  Install Podman: https://podman.io/docs/installation"
+                    echo "  Or Docker: https://docs.docker.com/get-docker/"
+                    exit 1
+                fi
+            else
+                install_container_runtime
+            fi
+        fi
+
+        SAFECLAW_DIR="$HOME/safeclaw"
+        mkdir -p "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace"
+
+        echo ""
+        echo -e "  ${BOLD}Choose a safety option:${NC}"
+        echo ""
+        echo -e "  ${CYAN}[a]${NC} ${BOLD}AceTeam hosted gateway${NC} ${GREEN}(recommended)${NC}"
+        echo -e "      ${DIM}Zero local setup. PII detection, cost tracking, signed audit${NC}"
+        echo -e "      ${DIM}handled at https://aceteam.ai/api/gateway/v1${NC}"
+        echo -e "      ${DIM}Get a gateway key: https://aceteam.ai/gateways${NC}"
+        echo ""
+        echo -e "  ${CYAN}[b]${NC} ${BOLD}Raw LLM calls${NC} ${YELLOW}(no safety)${NC}"
+        echo -e "      ${DIM}Agent talks directly to OpenAI/Anthropic — for before/after demos${NC}"
+        echo ""
+
+        use_aceteam_gateway="a"
+        if [ -t 1 ]; then
+            printf "  Choice [a]: "
+            read -r use_aceteam_gateway </dev/tty
+            use_aceteam_gateway=${use_aceteam_gateway:-a}
+        fi
+
+        echo ""
+        echo -e "  ${CYAN}Pulling OpenClaw agent via ${CONTAINER_CMD}...${NC}"
+        $CONTAINER_CMD pull ghcr.io/aceteam-ai/safeclaw:latest 2>&1 | tail -3
+
+        echo -e "  ${DIM}  Downloading docker-compose.yml...${NC}"
+        curl -fsSL "https://raw.githubusercontent.com/aceteam-ai/safeclaw/main/docker-compose.yml" \
+            -o "$SAFECLAW_DIR/docker-compose.yml"
+
+        # Drop a minimal OpenClaw config so the gateway boots without `openclaw setup`.
+        # Without this, the container crash-loops complaining about missing config.
+        if [ ! -f "$SAFECLAW_DIR/config/openclaw.json" ]; then
+            echo '{ "gateway": { "mode": "local" } }' > "$SAFECLAW_DIR/config/openclaw.json"
+        fi
+
+        # See case 1 for the UID mismatch rationale — required on Linux hosts.
+        chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
+
+        if [[ "$use_aceteam_gateway" =~ ^[Aa] ]]; then
+            # Wire LLM calls through the hosted AceTeam safety gateway.
+            if [ ! -f "$SAFECLAW_DIR/.env" ]; then
+                cat > "$SAFECLAW_DIR/.env" <<'ENVEOF'
+# OpenClaw + AceTeam hosted gateway
+# Get your gateway API key at https://aceteam.ai/gateways and paste it below.
+# The same key works for OpenAI- and Anthropic-compatible requests.
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+OPENAI_BASE_URL=https://aceteam.ai/api/gateway/v1
+ANTHROPIC_BASE_URL=https://aceteam.ai/api/gateway/v1
+OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest
+OPENCLAW_CONFIG_DIR=./config
+OPENCLAW_WORKSPACE_DIR=./workspace
+ENVEOF
+            fi
+
+            echo ""
+            echo -e "  ${GREEN}${BOLD}Ready.${NC}"
+            echo ""
+            echo -e "  ${BOLD}OpenClaw → AceTeam hosted gateway.${NC}"
+            echo -e "  ${DIM}LLM calls route through https://aceteam.ai/api/gateway/v1 for${NC}"
+            echo -e "  ${DIM}PII detection, cost tracking, and signed audit — no local proxy${NC}"
+            echo -e "  ${DIM}container needed.${NC}"
+            echo ""
+            echo -e "  ${CYAN}1) Get your gateway key:${NC} ${BOLD}https://aceteam.ai/gateways${NC}"
+            echo -e "  ${CYAN}2) Paste it into .env:${NC}    ${DIM}\$EDITOR ~/safeclaw/.env${NC}"
+            echo -e "  ${CYAN}3) Start OpenClaw:${NC}"
+            echo ""
+            echo "    cd ~/safeclaw && $CONTAINER_CMD compose -f docker-compose.yml up"
+            echo ""
+            echo -e "  ${CYAN}Agent UI:${NC}        http://localhost:18789/"
+            echo -e "  ${CYAN}Gateway UI:${NC}      https://aceteam.ai/gateways"
+            echo -e "  ${CYAN}Workspace:${NC}       ~/safeclaw/workspace"
+        else
+            # Pure raw — no safety layer at all.
+            if [ ! -f "$SAFECLAW_DIR/.env" ]; then
+                cat > "$SAFECLAW_DIR/.env" <<'ENVEOF'
+# OpenClaw — raw mode (no safety)
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest
+OPENCLAW_CONFIG_DIR=./config
+OPENCLAW_WORKSPACE_DIR=./workspace
+ENVEOF
+            fi
+
+            echo ""
+            echo -e "  ${GREEN}${BOLD}Ready.${NC}"
+            echo ""
+            echo -e "  ${YELLOW}${BOLD}OpenClaw installed (raw, no safety).${NC}"
+            echo -e "  ${DIM}The agent talks directly to provider APIs — no PII detection,${NC}"
+            echo -e "  ${DIM}no cost tracking, no audit. For before/after demos only.${NC}"
+            echo ""
+            echo -e "  ${CYAN}1) Add your API keys:${NC} ${DIM}\$EDITOR ~/safeclaw/.env${NC}"
+            echo -e "  ${CYAN}2) Start OpenClaw:${NC}"
+            echo ""
+            echo "    cd ~/safeclaw && $CONTAINER_CMD compose -f docker-compose.yml up"
+            echo ""
+            echo -e "  ${CYAN}Agent UI:${NC}        http://localhost:18789/"
+            echo -e "  ${CYAN}Workspace:${NC}       ~/safeclaw/workspace"
+            echo ""
+            echo -e "  ${DIM}Want safety? Re-run and pick option 1 (local) or option 3a (hosted).${NC}"
+        fi
+        ;;
+    4)
         # Developer mode: clone aceteam-aep source and run via `uv sync --extra proxy`.
         # More reliable than PyPI (which has been flaky) and gives you an editable source tree.
         if ! command -v git &>/dev/null; then
@@ -401,7 +540,7 @@ ENVEOF
         echo ""
         echo -e "  ${CYAN}Dashboard:${NC} http://localhost:8899/dashboard/"
         ;;
-    4)
+    5)
         echo -e "  ${GREEN}Great.${NC}"
         echo ""
         echo -e "  ${CYAN}Full SafeClaw (recommended):${NC}"
@@ -409,6 +548,9 @@ ENVEOF
         echo ""
         echo -e "  ${CYAN}Safety proxy only:${NC}"
         echo "    podman run -p 8899:8899 ghcr.io/aceteam-ai/aep-proxy"
+        echo ""
+        echo -e "  ${CYAN}OpenClaw only (no safety net):${NC}"
+        echo "    cd ~/safeclaw && podman compose -f docker-compose.yml up"
         echo ""
         echo -e "  ${CYAN}Developer mode (from source):${NC}"
         echo "    cd ~/aceteam-aep && uv run aceteam-aep proxy --port 8899"
