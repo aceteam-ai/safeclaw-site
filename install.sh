@@ -207,6 +207,20 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     case "${existing:-Y}" in
         [Yy]*)
             echo ""
+            # Guard: if DOCKER_HOST points to a unix socket that no longer
+            # exists (common with nix-shell / direnv: the dev shell's TMPDIR
+            # goes away but DOCKER_HOST remains exported), podman's delegation
+            # to docker-compose will fail with "Cannot connect to the Docker
+            # daemon at unix://<stale path>". Unsetting restores the default
+            # of using the podman machine's current socket.
+            if [ -n "${DOCKER_HOST:-}" ]; then
+                sock="${DOCKER_HOST#unix://}"
+                if [ "$sock" != "$DOCKER_HOST" ] && [ ! -S "$sock" ]; then
+                    echo -e "  ${YELLOW}Unsetting stale DOCKER_HOST${NC} ${DIM}($DOCKER_HOST — socket missing)${NC}"
+                    unset DOCKER_HOST
+                fi
+            fi
+
             # Pre-flight: verify the runtime can actually serve containers.
             # Podman on macOS can have a stale machine socket (e.g. left over
             # from a nix-shell TMPDIR) that passes `podman info` but fails when
