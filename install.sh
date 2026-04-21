@@ -219,8 +219,9 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     echo "    cd ~/safeclaw && $RUNTIME compose $COMPOSE_ARGS up"
     echo ""
     if [ -n "$GATEWAY_TOKEN" ]; then
-        echo -e "  ${DIM}Gateway token (paste into Control UI at http://localhost:18789/):${NC}"
-        echo -e "    ${CYAN}$GATEWAY_TOKEN${NC}"
+        echo -e "  ${BOLD}${YELLOW}→ Agent UI Gateway Token${NC} ${DIM}(paste on first visit to http://localhost:18789/):${NC}"
+        echo ""
+        echo -e "      ${BOLD}${CYAN}$GATEWAY_TOKEN${NC}"
         echo ""
     fi
     printf "  Start now? [${BOLD}Y${NC}/n/r=reinstall]: "
@@ -263,6 +264,13 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
             echo -e "  ${CYAN}Starting SafeClaw...${NC} ${DIM}(Ctrl+C to stop)${NC}"
             echo ""
             cd "$SAFECLAW_DIR"
+            # Ensure a clean slate: remove any stopped/orphaned containers
+            # first. This sidesteps "container already exists" / dependency
+            # errors that compose hits when .env changed since the last run
+            # (old container exists with stale env; new one can't take its
+            # place until the old one is removed, which compose can't do if
+            # something depends on it).
+            $RUNTIME compose $COMPOSE_ARGS down --remove-orphans >/dev/null 2>&1 || true
             exec $RUNTIME compose $COMPOSE_ARGS up
             ;;
         [Rr]*)
@@ -423,8 +431,9 @@ ENVEOF
         echo -e "  ${DIM}Dashboard:${NC} ${CYAN}http://localhost:8899/dashboard/${NC}  ${DIM}· Agent:${NC} ${CYAN}http://localhost:18789/${NC}"
         if [ -n "$GATEWAY_TOKEN" ]; then
             echo ""
-            echo -e "  ${DIM}Agent UI Gateway Token (paste into Control UI on first visit):${NC}"
-            echo -e "    ${CYAN}$GATEWAY_TOKEN${NC}"
+            echo -e "  ${BOLD}${YELLOW}→ Agent UI Gateway Token${NC} ${DIM}(paste on first visit to http://localhost:18789/):${NC}"
+            echo ""
+            echo -e "      ${BOLD}${CYAN}$GATEWAY_TOKEN${NC}"
         fi
         ;;
     2)
