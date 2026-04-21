@@ -179,6 +179,23 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     fi
     RUNTIME="${CONTAINER_CMD:-podman}"
 
+    # Self-heal pre-2df0cf2 installs: those .env files lacked OPENCLAW_IMAGE /
+    # _CONFIG_DIR / _WORKSPACE_DIR, so docker-compose.yml substitutes them to
+    # empty and bails with "invalid spec: :/home/node/.openclaw".
+    for kv in "OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest" \
+              "OPENCLAW_CONFIG_DIR=./config" \
+              "OPENCLAW_WORKSPACE_DIR=./workspace"; do
+        key="${kv%%=*}"
+        if ! grep -qE "^${key}=" "$SAFECLAW_DIR/.env"; then
+            echo "$kv" >> "$SAFECLAW_DIR/.env"
+        fi
+    done
+    mkdir -p "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace"
+    if [ ! -f "$SAFECLAW_DIR/config/openclaw.json" ]; then
+        echo '{ "gateway": { "mode": "local" } }' > "$SAFECLAW_DIR/config/openclaw.json"
+    fi
+    chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
+
     echo -e "  ${GREEN}✓ Already installed${NC} at ${CYAN}~/safeclaw${NC} ${DIM}— ${VARIANT}${NC}"
     echo ""
     echo -e "  ${BOLD}Start it:${NC}"
