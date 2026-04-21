@@ -164,6 +164,49 @@ install_container_runtime() {
 }
 
 # ---------------------------------------------------------------------------
+# Already installed? Short-circuit the menu and offer to start it directly.
+# The .env + docker-compose.yml pair is the install marker (written by cases 1/3).
+# ---------------------------------------------------------------------------
+SAFECLAW_DIR="$HOME/safeclaw"
+
+if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [ -t 1 ]; then
+    if [ -f "$SAFECLAW_DIR/docker-compose.safe.yml" ]; then
+        COMPOSE_ARGS="-f docker-compose.yml -f docker-compose.safe.yml"
+        VARIANT="Full SafeClaw (OpenClaw + Agent Safety Net)"
+    else
+        COMPOSE_ARGS="-f docker-compose.yml"
+        VARIANT="OpenClaw only"
+    fi
+    RUNTIME="${CONTAINER_CMD:-podman}"
+
+    echo -e "  ${GREEN}✓ Already installed${NC} at ${CYAN}~/safeclaw${NC} ${DIM}— ${VARIANT}${NC}"
+    echo ""
+    echo -e "  ${BOLD}Start it:${NC}"
+    echo ""
+    echo "    cd ~/safeclaw && $RUNTIME compose $COMPOSE_ARGS up"
+    echo ""
+    printf "  Start now? [${BOLD}Y${NC}/n/r=reinstall]: "
+    read -r existing </dev/tty || existing=""
+    case "${existing:-Y}" in
+        [Yy]*)
+            echo ""
+            echo -e "  ${CYAN}Starting SafeClaw...${NC} ${DIM}(Ctrl+C to stop)${NC}"
+            echo ""
+            cd "$SAFECLAW_DIR"
+            exec $RUNTIME compose $COMPOSE_ARGS up
+            ;;
+        [Rr]*)
+            echo ""
+            echo -e "  ${DIM}Continuing to installer menu...${NC}"
+            echo ""
+            ;;
+        *)
+            exit 0
+            ;;
+    esac
+fi
+
+# ---------------------------------------------------------------------------
 # Interactive preference selector
 # ---------------------------------------------------------------------------
 if [ -t 1 ]; then
@@ -294,22 +337,14 @@ ENVEOF
         chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
 
         echo ""
-        echo -e "  ${GREEN}${BOLD}Ready.${NC}"
+        echo -e "  ${GREEN}${BOLD}✓ Installed Full SafeClaw${NC} ${DIM}— OpenClaw + Agent Safety Net${NC}"
         echo ""
-        echo -e "  ${BOLD}SafeClaw = OpenClaw + Agent Safety Net${NC}"
-        echo -e "  ${DIM}The agent runs in a container. It cannot access your files,${NC}"
-        echo -e "  ${DIM}email, or credentials. The safety proxy blocks dangerous${NC}"
-        echo -e "  ${DIM}actions before they execute.${NC}"
-        echo ""
-        echo -e "  ${CYAN}1) Add your API keys:${NC}  ${DIM}\$EDITOR ~/safeclaw/.env${NC}"
-        echo -e "  ${CYAN}2) Start SafeClaw:${NC}"
+        echo -e "  ${BOLD}Start it:${NC}"
         echo ""
         echo "    cd ~/safeclaw && $CONTAINER_CMD compose -f docker-compose.yml -f docker-compose.safe.yml up"
         echo ""
-        echo -e "  ${CYAN}Dashboard:${NC}       http://localhost:8899/dashboard/"
-        echo -e "  ${CYAN}Agent UI:${NC}        http://localhost:18789/"
-        echo -e "  ${CYAN}API Keys:${NC}        Edit ~/safeclaw/.env"
-        echo -e "  ${CYAN}Workspace:${NC}       ~/safeclaw/workspace"
+        echo -e "  ${DIM}First, add your API keys:${NC} ${CYAN}\$EDITOR ~/safeclaw/.env${NC}"
+        echo -e "  ${DIM}Dashboard:${NC} ${CYAN}http://localhost:8899/dashboard/${NC}  ${DIM}· Agent:${NC} ${CYAN}http://localhost:18789/${NC}"
         ;;
     2)
         # Safety proxy only — for existing agents
@@ -338,25 +373,14 @@ ENVEOF
         mkdir -p "$HOME/safeclaw"
 
         echo ""
-        echo -e "  ${GREEN}${BOLD}Ready.${NC}"
+        echo -e "  ${GREEN}${BOLD}✓ Installed Safety Proxy${NC} ${DIM}— for existing agents${NC}"
         echo ""
-        echo -e "  ${BOLD}Safety proxy installed.${NC}"
-        echo -e "  ${DIM}This adds safety to any existing agent (Claude Code, CrewAI,${NC}"
-        echo -e "  ${DIM}LangChain, etc.) — it sits between your agent and the LLM.${NC}"
-        echo ""
-        echo -e "  ${CYAN}Start the safety proxy:${NC}"
+        echo -e "  ${BOLD}Start it:${NC}"
         echo ""
         echo "    $CONTAINER_CMD run -p 8899:8899 -v ~/safeclaw:/workspace ghcr.io/aceteam-ai/aep-proxy"
         echo ""
-        echo -e "  ${CYAN}Then point your agent at the proxy:${NC}"
-        echo ""
-        echo "    export OPENAI_BASE_URL=http://localhost:8899/v1"
-        echo ""
-        echo -e "  ${CYAN}Dashboard:${NC}  http://localhost:8899/dashboard/"
-        echo -e "  ${CYAN}API Keys:${NC}   Configure in Dashboard > Settings"
-        echo -e "  ${CYAN}Workspace:${NC}  ~/safeclaw"
-        echo ""
-        echo -e "  ${DIM}Want the full agent too? Re-run this installer and choose option 1.${NC}"
+        echo -e "  ${DIM}Then point your agent at it:${NC} ${CYAN}export OPENAI_BASE_URL=http://localhost:8899/v1${NC}"
+        echo -e "  ${DIM}Dashboard:${NC} ${CYAN}http://localhost:8899/dashboard/${NC}"
         ;;
     3)
         # OpenClaw only (no local proxy). Sub-prompt lets the user route through
@@ -438,22 +462,14 @@ ENVEOF
             fi
 
             echo ""
-            echo -e "  ${GREEN}${BOLD}Ready.${NC}"
+            echo -e "  ${GREEN}${BOLD}✓ Installed OpenClaw → AceTeam hosted gateway${NC}"
             echo ""
-            echo -e "  ${BOLD}OpenClaw → AceTeam hosted gateway.${NC}"
-            echo -e "  ${DIM}LLM calls route through https://aceteam.ai/api/gateway/v1 for${NC}"
-            echo -e "  ${DIM}PII detection, cost tracking, and signed audit — no local proxy${NC}"
-            echo -e "  ${DIM}container needed.${NC}"
-            echo ""
-            echo -e "  ${CYAN}1) Get your gateway key:${NC} ${BOLD}https://aceteam.ai/gateways${NC}"
-            echo -e "  ${CYAN}2) Paste it into .env:${NC}    ${DIM}\$EDITOR ~/safeclaw/.env${NC}"
-            echo -e "  ${CYAN}3) Start OpenClaw:${NC}"
+            echo -e "  ${BOLD}Start it:${NC}"
             echo ""
             echo "    cd ~/safeclaw && $CONTAINER_CMD compose -f docker-compose.yml up"
             echo ""
-            echo -e "  ${CYAN}Agent UI:${NC}        http://localhost:18789/"
-            echo -e "  ${CYAN}Gateway UI:${NC}      https://aceteam.ai/gateways"
-            echo -e "  ${CYAN}Workspace:${NC}       ~/safeclaw/workspace"
+            echo -e "  ${DIM}First, get a gateway key at${NC} ${CYAN}https://aceteam.ai/gateways${NC} ${DIM}and paste into${NC} ${CYAN}~/safeclaw/.env${NC}"
+            echo -e "  ${DIM}Agent:${NC} ${CYAN}http://localhost:18789/${NC}"
         else
             # Pure raw — no safety layer at all.
             if [ ! -f "$SAFECLAW_DIR/.env" ]; then
@@ -468,21 +484,14 @@ ENVEOF
             fi
 
             echo ""
-            echo -e "  ${GREEN}${BOLD}Ready.${NC}"
+            echo -e "  ${GREEN}${BOLD}✓ Installed OpenClaw${NC} ${YELLOW}— raw, no safety${NC}"
             echo ""
-            echo -e "  ${YELLOW}${BOLD}OpenClaw installed (raw, no safety).${NC}"
-            echo -e "  ${DIM}The agent talks directly to provider APIs — no PII detection,${NC}"
-            echo -e "  ${DIM}no cost tracking, no audit. For before/after demos only.${NC}"
-            echo ""
-            echo -e "  ${CYAN}1) Add your API keys:${NC} ${DIM}\$EDITOR ~/safeclaw/.env${NC}"
-            echo -e "  ${CYAN}2) Start OpenClaw:${NC}"
+            echo -e "  ${BOLD}Start it:${NC}"
             echo ""
             echo "    cd ~/safeclaw && $CONTAINER_CMD compose -f docker-compose.yml up"
             echo ""
-            echo -e "  ${CYAN}Agent UI:${NC}        http://localhost:18789/"
-            echo -e "  ${CYAN}Workspace:${NC}       ~/safeclaw/workspace"
-            echo ""
-            echo -e "  ${DIM}Want safety? Re-run and pick option 1 (local) or option 3a (hosted).${NC}"
+            echo -e "  ${DIM}First, add your API keys:${NC} ${CYAN}\$EDITOR ~/safeclaw/.env${NC}"
+            echo -e "  ${DIM}Agent:${NC} ${CYAN}http://localhost:18789/${NC}  ${DIM}· Want safety? Re-run and pick [1] or [3a].${NC}"
         fi
         ;;
     4)
