@@ -207,6 +207,24 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     case "${existing:-Y}" in
         [Yy]*)
             echo ""
+            # Pre-flight: verify the runtime can actually serve containers.
+            # Podman on macOS can have a stale machine socket (e.g. left over
+            # from a nix-shell TMPDIR) that passes `podman info` but fails when
+            # docker-compose — which podman delegates to — tries to connect.
+            # Stop+start regenerates the socket at the current TMPDIR.
+            if ! $RUNTIME ps >/dev/null 2>&1; then
+                echo -e "  ${YELLOW}$RUNTIME isn't responding. Restarting the machine...${NC}"
+                if [ "$RUNTIME" = "podman" ]; then
+                    podman machine stop >/dev/null 2>&1 || true
+                    podman machine start >/dev/null 2>&1 || true
+                fi
+                if ! $RUNTIME ps >/dev/null 2>&1; then
+                    echo -e "  ${RED}Still can't reach $RUNTIME.${NC} Try:"
+                    echo "    podman machine rm -f podman-machine-default && podman machine init && podman machine start"
+                    exit 1
+                fi
+                echo -e "  ${GREEN}$RUNTIME back online.${NC}"
+            fi
             echo -e "  ${CYAN}Starting SafeClaw...${NC} ${DIM}(Ctrl+C to stop)${NC}"
             echo ""
             cd "$SAFECLAW_DIR"
