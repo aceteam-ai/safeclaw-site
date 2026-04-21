@@ -196,12 +196,17 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     fi
     chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
 
-    # Self-heal missing OPENCLAW_GATEWAY_TOKEN. Without a non-empty value,
-    # OpenClaw's Control UI rejects the websocket with "unauthorized: gateway
-    # token missing". Generate a random per-install token and drop it in .env.
-    if ! grep -qE '^OPENCLAW_GATEWAY_TOKEN=..' "$SAFECLAW_DIR/.env"; then
-        # Strip any existing empty line so we don't duplicate the key.
-        grep -v '^OPENCLAW_GATEWAY_TOKEN=$' "$SAFECLAW_DIR/.env" > "$SAFECLAW_DIR/.env.tmp" && mv "$SAFECLAW_DIR/.env.tmp" "$SAFECLAW_DIR/.env"
+    # Self-heal missing / placeholder / too-short OPENCLAW_GATEWAY_TOKEN.
+    # Without a real value OpenClaw's Control UI rejects the websocket with
+    # "unauthorized: gateway token missing". OpenClaw's upstream .env.example
+    # ships "change-me-to-a-long-random-token" as a hint, which naive copies
+    # of .env.example inherit — treat that placeholder as empty.
+    current_token="$(grep -E '^OPENCLAW_GATEWAY_TOKEN=' "$SAFECLAW_DIR/.env" | head -1 | cut -d= -f2-)"
+    if [ -z "$current_token" ] || \
+       [ "$current_token" = "change-me-to-a-long-random-token" ] || \
+       [ "${#current_token}" -lt 16 ]; then
+        # Strip any existing line (empty or placeholder) and append a fresh one.
+        grep -v '^OPENCLAW_GATEWAY_TOKEN=' "$SAFECLAW_DIR/.env" > "$SAFECLAW_DIR/.env.tmp" && mv "$SAFECLAW_DIR/.env.tmp" "$SAFECLAW_DIR/.env"
         gateway_token="$(openssl rand -hex 16 2>/dev/null || head -c 16 /dev/urandom | xxd -p 2>/dev/null || date +%s%N | sha256sum | head -c 32)"
         echo "OPENCLAW_GATEWAY_TOKEN=$gateway_token" >> "$SAFECLAW_DIR/.env"
     fi
