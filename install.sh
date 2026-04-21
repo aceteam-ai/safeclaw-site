@@ -196,12 +196,28 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     fi
     chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
 
+    # Self-heal missing OPENCLAW_GATEWAY_TOKEN. Without a non-empty value,
+    # OpenClaw's Control UI rejects the websocket with "unauthorized: gateway
+    # token missing". Generate a random per-install token and drop it in .env.
+    if ! grep -qE '^OPENCLAW_GATEWAY_TOKEN=..' "$SAFECLAW_DIR/.env"; then
+        # Strip any existing empty line so we don't duplicate the key.
+        grep -v '^OPENCLAW_GATEWAY_TOKEN=$' "$SAFECLAW_DIR/.env" > "$SAFECLAW_DIR/.env.tmp" && mv "$SAFECLAW_DIR/.env.tmp" "$SAFECLAW_DIR/.env"
+        gateway_token="$(openssl rand -hex 16 2>/dev/null || head -c 16 /dev/urandom | xxd -p 2>/dev/null || date +%s%N | sha256sum | head -c 32)"
+        echo "OPENCLAW_GATEWAY_TOKEN=$gateway_token" >> "$SAFECLAW_DIR/.env"
+    fi
+    GATEWAY_TOKEN="$(grep -E '^OPENCLAW_GATEWAY_TOKEN=' "$SAFECLAW_DIR/.env" | head -1 | cut -d= -f2-)"
+
     echo -e "  ${GREEN}✓ Already installed${NC} at ${CYAN}~/safeclaw${NC} ${DIM}— ${VARIANT}${NC}"
     echo ""
     echo -e "  ${BOLD}Start it:${NC}"
     echo ""
     echo "    cd ~/safeclaw && $RUNTIME compose $COMPOSE_ARGS up"
     echo ""
+    if [ -n "$GATEWAY_TOKEN" ]; then
+        echo -e "  ${DIM}Gateway token (paste into Control UI at http://localhost:18789/):${NC}"
+        echo -e "    ${CYAN}$GATEWAY_TOKEN${NC}"
+        echo ""
+    fi
     printf "  Start now? [${BOLD}Y${NC}/n/r=reinstall]: "
     read -r existing </dev/tty || existing=""
     case "${existing:-Y}" in
@@ -364,13 +380,17 @@ case "$choice" in
         # which docker-compose.yml requires (no defaults), so compose fails.
         mkdir -p "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace"
         if [ ! -f "$SAFECLAW_DIR/.env" ]; then
-            cat > "$SAFECLAW_DIR/.env" <<'ENVEOF'
+            # Generate a per-install gateway token so the Control UI at
+            # http://localhost:18789/ can connect without manual token setup.
+            gateway_token="$(openssl rand -hex 16 2>/dev/null || head -c 16 /dev/urandom | xxd -p 2>/dev/null || date +%s%N | sha256sum | head -c 32)"
+            cat > "$SAFECLAW_DIR/.env" <<ENVEOF
 # SafeClaw environment — add your API keys here
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest
 OPENCLAW_CONFIG_DIR=./config
 OPENCLAW_WORKSPACE_DIR=./workspace
+OPENCLAW_GATEWAY_TOKEN=$gateway_token
 ENVEOF
         fi
 
@@ -385,6 +405,8 @@ ENVEOF
         # harmless there and necessary on Linux.
         chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
 
+        GATEWAY_TOKEN="$(grep -E '^OPENCLAW_GATEWAY_TOKEN=' "$SAFECLAW_DIR/.env" | head -1 | cut -d= -f2-)"
+
         echo ""
         echo -e "  ${GREEN}${BOLD}✓ Installed Full SafeClaw${NC} ${DIM}— OpenClaw + Agent Safety Net${NC}"
         echo ""
@@ -394,6 +416,11 @@ ENVEOF
         echo ""
         echo -e "  ${DIM}First, add your API keys:${NC} ${CYAN}\$EDITOR ~/safeclaw/.env${NC}"
         echo -e "  ${DIM}Dashboard:${NC} ${CYAN}http://localhost:8899/dashboard/${NC}  ${DIM}· Agent:${NC} ${CYAN}http://localhost:18789/${NC}"
+        if [ -n "$GATEWAY_TOKEN" ]; then
+            echo ""
+            echo -e "  ${DIM}Agent UI Gateway Token (paste into Control UI on first visit):${NC}"
+            echo -e "    ${CYAN}$GATEWAY_TOKEN${NC}"
+        fi
         ;;
     2)
         # Safety proxy only — for existing agents
@@ -493,10 +520,13 @@ ENVEOF
         # See case 1 for the UID mismatch rationale — required on Linux hosts.
         chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
 
+        # Per-install gateway token for OpenClaw's Control UI; shared between 3a/3b.
+        gateway_token="$(openssl rand -hex 16 2>/dev/null || head -c 16 /dev/urandom | xxd -p 2>/dev/null || date +%s%N | sha256sum | head -c 32)"
+
         if [[ "$use_aceteam_gateway" =~ ^[Aa] ]]; then
             # Wire LLM calls through the hosted AceTeam safety gateway.
             if [ ! -f "$SAFECLAW_DIR/.env" ]; then
-                cat > "$SAFECLAW_DIR/.env" <<'ENVEOF'
+                cat > "$SAFECLAW_DIR/.env" <<ENVEOF
 # OpenClaw + AceTeam hosted gateway
 # Get your gateway API key at https://aceteam.ai/gateways and paste it below.
 # The same key works for OpenAI- and Anthropic-compatible requests.
@@ -507,8 +537,10 @@ ANTHROPIC_BASE_URL=https://aceteam.ai/api/gateway/v1
 OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest
 OPENCLAW_CONFIG_DIR=./config
 OPENCLAW_WORKSPACE_DIR=./workspace
+OPENCLAW_GATEWAY_TOKEN=$gateway_token
 ENVEOF
             fi
+            GATEWAY_TOKEN="$(grep -E '^OPENCLAW_GATEWAY_TOKEN=' "$SAFECLAW_DIR/.env" | head -1 | cut -d= -f2-)"
 
             echo ""
             echo -e "  ${GREEN}${BOLD}✓ Installed OpenClaw → AceTeam hosted gateway${NC}"
@@ -519,18 +551,25 @@ ENVEOF
             echo ""
             echo -e "  ${DIM}First, get a gateway key at${NC} ${CYAN}https://aceteam.ai/gateways${NC} ${DIM}and paste into${NC} ${CYAN}~/safeclaw/.env${NC}"
             echo -e "  ${DIM}Agent:${NC} ${CYAN}http://localhost:18789/${NC}"
+            if [ -n "$GATEWAY_TOKEN" ]; then
+                echo ""
+                echo -e "  ${DIM}Agent UI Gateway Token (paste into Control UI on first visit):${NC}"
+                echo -e "    ${CYAN}$GATEWAY_TOKEN${NC}"
+            fi
         else
             # Pure raw — no safety layer at all.
             if [ ! -f "$SAFECLAW_DIR/.env" ]; then
-                cat > "$SAFECLAW_DIR/.env" <<'ENVEOF'
+                cat > "$SAFECLAW_DIR/.env" <<ENVEOF
 # OpenClaw — raw mode (no safety)
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 OPENCLAW_IMAGE=ghcr.io/aceteam-ai/safeclaw:latest
 OPENCLAW_CONFIG_DIR=./config
 OPENCLAW_WORKSPACE_DIR=./workspace
+OPENCLAW_GATEWAY_TOKEN=$gateway_token
 ENVEOF
             fi
+            GATEWAY_TOKEN="$(grep -E '^OPENCLAW_GATEWAY_TOKEN=' "$SAFECLAW_DIR/.env" | head -1 | cut -d= -f2-)"
 
             echo ""
             echo -e "  ${GREEN}${BOLD}✓ Installed OpenClaw${NC} ${YELLOW}— raw, no safety${NC}"
@@ -541,6 +580,11 @@ ENVEOF
             echo ""
             echo -e "  ${DIM}First, add your API keys:${NC} ${CYAN}\$EDITOR ~/safeclaw/.env${NC}"
             echo -e "  ${DIM}Agent:${NC} ${CYAN}http://localhost:18789/${NC}  ${DIM}· Want safety? Re-run and pick [1] or [3a].${NC}"
+            if [ -n "$GATEWAY_TOKEN" ]; then
+                echo ""
+                echo -e "  ${DIM}Agent UI Gateway Token (paste into Control UI on first visit):${NC}"
+                echo -e "    ${CYAN}$GATEWAY_TOKEN${NC}"
+            fi
         fi
         ;;
     4)
