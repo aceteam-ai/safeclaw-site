@@ -229,18 +229,15 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     case "${existing:-Y}" in
         [Yy]*)
             echo ""
-            # Guard: if DOCKER_HOST points to a unix socket that no longer
-            # exists (common with nix-shell / direnv: the dev shell's TMPDIR
-            # goes away but DOCKER_HOST remains exported), podman's delegation
-            # to docker-compose will fail with "Cannot connect to the Docker
-            # daemon at unix://<stale path>". Unsetting restores the default
-            # of using the podman machine's current socket.
-            if [ -n "${DOCKER_HOST:-}" ]; then
-                sock="${DOCKER_HOST#unix://}"
-                if [ "$sock" != "$DOCKER_HOST" ] && [ ! -S "$sock" ]; then
-                    echo -e "  ${YELLOW}Unsetting stale DOCKER_HOST${NC} ${DIM}($DOCKER_HOST — socket missing)${NC}"
-                    unset DOCKER_HOST
-                fi
+            # Guard: when using podman, always drop any inherited DOCKER_HOST.
+            # `podman compose` on macOS delegates to `docker-compose`, which
+            # honors DOCKER_HOST; if the user's shell exports one (nix-shell /
+            # direnv leaks are common, and the socket may be stale-but-present
+            # so a `-S` check isn't enough), docker-compose talks to the wrong
+            # daemon. Unsetting lets podman re-export its own machine socket.
+            if [ "$RUNTIME" = "podman" ] && [ -n "${DOCKER_HOST:-}" ]; then
+                echo -e "  ${DIM}Unsetting inherited DOCKER_HOST${NC} ${DIM}($DOCKER_HOST)${NC}"
+                unset DOCKER_HOST
             fi
 
             # Pre-flight: verify the runtime can actually serve containers.
