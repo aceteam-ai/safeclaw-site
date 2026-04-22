@@ -164,6 +164,69 @@ install_container_runtime() {
 }
 
 # ---------------------------------------------------------------------------
+# Start SafeClaw: pre-flight the runtime, pull :latest, then exec `compose up`.
+# Used by both the existing-install auto-start branch and the end-of-install
+# "Start now?" prompt, so both paths get the same sanity checks and image
+# freshness guarantee.
+#
+# Args: $1=runtime (podman|docker), $2=compose dir, $3=compose args string
+# ---------------------------------------------------------------------------
+start_safeclaw() {
+    local runtime="$1"
+    local dir="$2"
+    local args="$3"
+
+    # Guard: when using podman, always drop any inherited DOCKER_HOST.
+    # `podman compose` on macOS delegates to `docker-compose`, which honors
+    # DOCKER_HOST; an inherited value (nix-shell / direnv leaks are common,
+    # and the socket may be stale-but-present so `-S` isn't enough) makes
+    # docker-compose talk to the wrong daemon. Unsetting lets podman
+    # re-export its own machine socket.
+    if [ "$runtime" = "podman" ] && [ -n "${DOCKER_HOST:-}" ]; then
+        echo -e "  ${DIM}Unsetting inherited DOCKER_HOST${NC} ${DIM}($DOCKER_HOST)${NC}"
+        unset DOCKER_HOST
+    fi
+
+    # Pre-flight: verify the runtime can actually serve containers. Podman on
+    # macOS can have a stale machine socket (e.g. left over from a nix-shell
+    # TMPDIR) that passes `podman info` but fails when docker-compose tries
+    # to connect. Stop+start regenerates the socket at the current TMPDIR.
+    if ! $runtime ps >/dev/null 2>&1; then
+        echo -e "  ${YELLOW}$runtime isn't responding. Restarting the machine...${NC}"
+        if [ "$runtime" = "podman" ]; then
+            podman machine stop >/dev/null 2>&1 || true
+            podman machine start >/dev/null 2>&1 || true
+        fi
+        if ! $runtime ps >/dev/null 2>&1; then
+            echo -e "  ${RED}Still can't reach $runtime.${NC} Try:"
+            echo "    podman machine rm -f podman-machine-default && podman machine init && podman machine start"
+            exit 1
+        fi
+        echo -e "  ${GREEN}$runtime back online.${NC}"
+    fi
+
+    cd "$dir"
+
+    # Always refresh :latest-tagged images. `compose up` uses whatever is
+    # cached locally, so without an explicit pull a user who installed
+    # months ago stays on the stale :latest forever. Only runs when the
+    # safe-mode compose is present (aep-proxy is the only :latest image).
+    if [ -f "$dir/docker-compose.safe.yml" ]; then
+        echo -e "  ${DIM}Checking for image updates...${NC}"
+        $runtime compose $args pull aep-proxy 2>&1 | grep -vE "^$|Pulling|level=" || true
+    fi
+    echo -e "  ${CYAN}Starting SafeClaw...${NC} ${DIM}(Ctrl+C to stop)${NC}"
+    echo ""
+    # Ensure a clean slate: remove any stopped/orphaned containers first.
+    # This sidesteps "container already exists" / dependency errors compose
+    # hits when .env changed since the last run (old container exists with
+    # stale env; new one can't take its place until the old one is removed,
+    # which compose can't do if something depends on it).
+    $runtime compose $args down --remove-orphans >/dev/null 2>&1 || true
+    exec $runtime compose $args up
+}
+
+# ---------------------------------------------------------------------------
 # Already installed? Short-circuit the menu and offer to start it directly.
 # The .env + docker-compose.yml pair is the install marker (written by cases 1/3).
 # ---------------------------------------------------------------------------
@@ -229,55 +292,7 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     case "${existing:-Y}" in
         [Yy]*)
             echo ""
-            # Guard: when using podman, always drop any inherited DOCKER_HOST.
-            # `podman compose` on macOS delegates to `docker-compose`, which
-            # honors DOCKER_HOST; if the user's shell exports one (nix-shell /
-            # direnv leaks are common, and the socket may be stale-but-present
-            # so a `-S` check isn't enough), docker-compose talks to the wrong
-            # daemon. Unsetting lets podman re-export its own machine socket.
-            if [ "$RUNTIME" = "podman" ] && [ -n "${DOCKER_HOST:-}" ]; then
-                echo -e "  ${DIM}Unsetting inherited DOCKER_HOST${NC} ${DIM}($DOCKER_HOST)${NC}"
-                unset DOCKER_HOST
-            fi
-
-            # Pre-flight: verify the runtime can actually serve containers.
-            # Podman on macOS can have a stale machine socket (e.g. left over
-            # from a nix-shell TMPDIR) that passes `podman info` but fails when
-            # docker-compose — which podman delegates to — tries to connect.
-            # Stop+start regenerates the socket at the current TMPDIR.
-            if ! $RUNTIME ps >/dev/null 2>&1; then
-                echo -e "  ${YELLOW}$RUNTIME isn't responding. Restarting the machine...${NC}"
-                if [ "$RUNTIME" = "podman" ]; then
-                    podman machine stop >/dev/null 2>&1 || true
-                    podman machine start >/dev/null 2>&1 || true
-                fi
-                if ! $RUNTIME ps >/dev/null 2>&1; then
-                    echo -e "  ${RED}Still can't reach $RUNTIME.${NC} Try:"
-                    echo "    podman machine rm -f podman-machine-default && podman machine init && podman machine start"
-                    exit 1
-                fi
-                echo -e "  ${GREEN}$RUNTIME back online.${NC}"
-            fi
-            cd "$SAFECLAW_DIR"
-            # Always refresh :latest-tagged images on an existing install.
-            # `compose up` uses whatever image is cached locally, so a user
-            # who ran the installer months ago will still be on the stale
-            # :latest unless we explicitly pull. `pull --policy always`
-            # hits the registry; any non-:latest pins are skipped cheaply.
-            if [ -f "$SAFECLAW_DIR/docker-compose.safe.yml" ]; then
-                echo -e "  ${DIM}Checking for image updates...${NC}"
-                $RUNTIME compose $COMPOSE_ARGS pull aep-proxy 2>&1 | grep -vE "^$|Pulling|level=" || true
-            fi
-            echo -e "  ${CYAN}Starting SafeClaw...${NC} ${DIM}(Ctrl+C to stop)${NC}"
-            echo ""
-            # Ensure a clean slate: remove any stopped/orphaned containers
-            # first. This sidesteps "container already exists" / dependency
-            # errors that compose hits when .env changed since the last run
-            # (old container exists with stale env; new one can't take its
-            # place until the old one is removed, which compose can't do if
-            # something depends on it).
-            $RUNTIME compose $COMPOSE_ARGS down --remove-orphans >/dev/null 2>&1 || true
-            exec $RUNTIME compose $COMPOSE_ARGS up
+            start_safeclaw "$RUNTIME" "$SAFECLAW_DIR" "$COMPOSE_ARGS"
             ;;
         [Rr]*)
             echo ""
@@ -440,6 +455,22 @@ ENVEOF
             echo -e "  ${BOLD}${YELLOW}→ Agent UI Gateway Token${NC} ${DIM}(paste on first visit to http://localhost:18789/):${NC}"
             echo ""
             echo -e "      ${BOLD}${CYAN}$GATEWAY_TOKEN${NC}"
+        fi
+
+        # Auto-start so the user doesn't have to copy-paste + context-switch.
+        # /dev/tty lets this prompt work under `curl ... | bash` (stdin is
+        # the script stream, but the terminal is still available).
+        if [ -t 1 ]; then
+            echo ""
+            printf "  ${BOLD}Start SafeClaw now?${NC} [${BOLD}Y${NC}/n]: "
+            read -r start_now </dev/tty || start_now=""
+            case "${start_now:-Y}" in
+                [Yy]*)
+                    echo ""
+                    start_safeclaw "$CONTAINER_CMD" "$SAFECLAW_DIR" \
+                        "-f docker-compose.yml -f docker-compose.safe.yml"
+                    ;;
+            esac
         fi
         ;;
     2)
