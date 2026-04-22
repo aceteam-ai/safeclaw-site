@@ -227,7 +227,7 @@
     <div class="persona-step">
       <div class="persona-step-num">2</div>
       <div class="persona-step-body">
-        <strong>Sign up &amp; claim your tokens</strong> &mdash; go to <a href="https://aceteam.ai" style="color:#38bdf8;">aceteam.ai</a>, create an account, then <a href="https://www.linkedin.com/in/sunapi386/" style="color:#38bdf8;">connect on LinkedIn</a> and <a href="https://github.com/aceteam-ai/safeclaw" style="color:#38bdf8;">star the repo</a> to get <strong style="color:#4ade80;">$20 in free tokens</strong>.
+        <strong>Pick a provider</strong> &mdash; open <a href="http://localhost:8899/dashboard/" target="_blank" style="color:#38bdf8;">the dashboard</a> and click <strong style="color:#4ade80;">Use AceTeam</strong>. Sign in at aceteam.ai once, get bounced back with a key already wired up &mdash; <strong style="color:#4ade80;">$5 free credit</strong> included. Or bring your own OpenAI / Anthropic key / TokenRouter.
       </div>
     </div>
     <div class="persona-step">
@@ -253,7 +253,7 @@
     <div class="persona-step">
       <div class="persona-step-num">2</div>
       <div class="persona-step-body">
-        <strong>Register your human</strong> &mdash; send them to <a href="https://aceteam.ai" style="color:#38bdf8;">aceteam.ai</a> to claim their account and free tokens.
+        <strong>Point your human at the dashboard</strong> &mdash; tell them to open <a href="http://localhost:8899/dashboard/" style="color:#38bdf8;">localhost:8899/dashboard/</a> and click <strong>Use AceTeam</strong>. One sign-in at aceteam.ai, bounced back with a key and <strong style="color:#4ade80;">$5 free credit</strong> &mdash; no key handling on your side.
       </div>
     </div>
     <div class="persona-step">
@@ -317,17 +317,39 @@ function switchPersona(which) {
 </details>
 
 <div class="step">
-  <div class="step-num">Next &mdash; Open the dashboard</div>
-  <p>Go to <a href="http://localhost:8899/dashboard/" target="_blank"><strong>localhost:8899/dashboard</strong></a>. Go to <strong>Settings</strong> to add your OpenAI or Anthropic API key. The key is stored locally &mdash; it never leaves your machine.</p>
-  <div style="margin-top:12px; padding:12px 16px; background:#0f172a; border:1px solid #1e293b; border-radius:8px;">
-    <p style="font-size:13px; color:#94a3b8; margin:0 0 8px;"><strong style="color:#e2e8f0;">Don't have an API key?</strong> Get <strong style="color:#4ade80;">$20 in free tokens</strong>:</p>
-    <ol style="font-size:13px; color:#94a3b8; margin:0 0 10px; padding-left:20px; line-height:1.8;">
-      <li><a href="https://www.linkedin.com/in/sunapi386/" target="_blank" style="color:#38bdf8;">Connect with me on LinkedIn</a></li>
-      <li>Send me a message &mdash; say hi!</li>
-      <li><a href="https://github.com/aceteam-ai/safeclaw" target="_blank" style="color:#38bdf8;">Star SafeClaw on GitHub</a></li>
-    </ol>
-    <p style="font-size:13px; color:#64748b; margin:0;">I'll send you <strong style="color:#4ade80;">$20 in tokens</strong> &mdash; sign in at <a href="https://aceteam.ai" style="color:#38bdf8;">aceteam.ai</a> and they'll be waiting for you.</p>
+  <div class="step-num">Next &mdash; Open the dashboard &amp; pick a provider</div>
+  <p>Open <a href="http://localhost:8899/dashboard/" target="_blank"><strong>localhost:8899/dashboard/</strong></a>. On first run, a welcome card asks how you want to reach an LLM. Three options &mdash; all store the key locally in the proxy, nothing touches our servers:</p>
+
+  <div style="margin-top:14px; display:grid; gap:10px;">
+
+    <div style="padding:14px 16px; background:#0f172a; border:1px solid #1e293b; border-radius:8px;">
+      <p style="font-size:13px; color:#e2e8f0; margin:0 0 6px;"><strong style="color:#4ade80;">Use AceTeam</strong> &mdash; recommended, one click</p>
+      <p style="font-size:13px; color:#94a3b8; margin:0;">Click <strong>Use AceTeam</strong> &rarr; sign in at aceteam.ai &rarr; you're bounced back with a key already provisioned. Comes with <strong style="color:#4ade80;">$5 in free credit</strong>; top up from your account when it runs out.</p>
+    </div>
+
+    <div style="padding:14px 16px; background:#0f172a; border:1px solid #1e293b; border-radius:8px;">
+      <p style="font-size:13px; color:#e2e8f0; margin:0 0 6px;"><strong>I have API keys</strong> &mdash; bring your own OpenAI / Anthropic / local</p>
+      <p style="font-size:13px; color:#94a3b8; margin:0;">Paste an <code style="color:#38bdf8;">sk-&hellip;</code> key. Optional base URL for local Ollama, LM Studio, vLLM, etc. $0 extra cost &mdash; you pay the provider directly.</p>
+    </div>
+
+    <div style="padding:14px 16px; background:#0f172a; border:1px solid #1e293b; border-radius:8px;">
+      <p style="font-size:13px; color:#e2e8f0; margin:0 0 6px;"><strong>Use TokenRouter</strong> &mdash; via <a href="https://palebluedot.ai" target="_blank" style="color:#38bdf8;">palebluedot.ai</a></p>
+      <p style="font-size:13px; color:#94a3b8; margin:0;">One key for 100+ models across providers. Base URL prefilled &mdash; paste your TokenRouter key.</p>
+    </div>
+
   </div>
+
+  <details style="margin-top:14px;">
+    <summary style="font-size:13px; color:#94a3b8;">Want more than $5? Here's how to top up.</summary>
+    <div class="inner">
+      <p style="font-size:13px; color:#94a3b8; margin:10px 0 8px;">After signing in with <strong>Use AceTeam</strong>:</p>
+      <ol style="font-size:13px; color:#94a3b8; margin:0 0 10px; padding-left:20px; line-height:1.8;">
+        <li><a href="https://www.linkedin.com/in/sunapi386/" target="_blank" style="color:#38bdf8;">Connect with me on LinkedIn</a> and say hi</li>
+        <li><a href="https://github.com/aceteam-ai/safeclaw" target="_blank" style="color:#38bdf8;">Star SafeClaw on GitHub</a></li>
+      </ol>
+      <p style="font-size:13px; color:#64748b; margin:0;">I'll add <strong style="color:#4ade80;">$20 in tokens</strong> to your AceTeam account on top of the $5 welcome credit.</p>
+    </div>
+  </details>
 </div>
 
 <div class="step">
