@@ -9,6 +9,11 @@
 
 set -euo pipefail
 
+# Bumped by scripts/release.sh on every release. Shown in the banner so users
+# reporting issues can say "I'm on v1.0.3" without having to diff files. Also
+# used by the "you're behind" notice we may add later.
+INSTALLER_VERSION="1.0.0"
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 CYAN='\033[0;36m'
@@ -18,7 +23,7 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 echo ""
-echo -e "${BOLD}${CYAN}  SafeClaw${NC}"
+echo -e "${BOLD}${CYAN}  SafeClaw${NC} ${DIM}installer v${INSTALLER_VERSION}${NC}"
 echo -e "${DIM}  Run AI agents safely — OpenClaw + Agent Safety Net${NC}"
 echo ""
 
@@ -211,9 +216,18 @@ start_safeclaw() {
     # cached locally, so without an explicit pull a user who installed
     # months ago stays on the stale :latest forever. Only runs when the
     # safe-mode compose is present (aep-proxy is the only :latest image).
+    #
+    # We pull via $runtime directly instead of `compose pull`. On macOS with
+    # Docker Desktop leftovers in ~/.docker/config.json, docker-compose
+    # (which `podman compose` delegates to) invokes `docker-credential-desktop`,
+    # which isn't on PATH for non-Docker-Desktop users — resulting in a noisy
+    # "error getting credentials" even for public images. Direct pull bypasses
+    # the cred-helper path entirely.
     if [ -f "$dir/docker-compose.safe.yml" ]; then
         echo -e "  ${DIM}Checking for image updates...${NC}"
-        $runtime compose $args pull aep-proxy 2>&1 | grep -vE "^$|Pulling|level=" || true
+        if ! $runtime pull ghcr.io/aceteam-ai/aep-proxy:latest >/dev/null 2>&1; then
+            echo -e "  ${DIM}Couldn't reach registry — continuing with cached image.${NC}"
+        fi
     fi
     echo -e "  ${CYAN}Starting SafeClaw...${NC} ${DIM}(Ctrl+C to stop)${NC}"
     echo ""
@@ -448,8 +462,9 @@ ENVEOF
         echo ""
         echo "    cd ~/safeclaw && $CONTAINER_CMD compose -f docker-compose.yml -f docker-compose.safe.yml up"
         echo ""
-        echo -e "  ${DIM}First, add your API keys:${NC} ${CYAN}\$EDITOR ~/safeclaw/.env${NC}"
-        echo -e "  ${DIM}Dashboard:${NC} ${CYAN}http://localhost:8899/dashboard/${NC}  ${DIM}· Agent:${NC} ${CYAN}http://localhost:18789/${NC}"
+        echo -e "  ${BOLD}First run:${NC} open ${CYAN}http://localhost:8899/dashboard/${NC} to pick a provider"
+        echo -e "  ${DIM}  → $5 AceTeam credit (no key), your own OpenAI/Anthropic key, or TokenRouter${NC}"
+        echo -e "  ${DIM}Agent UI:${NC} ${CYAN}http://localhost:18789/${NC}"
         if [ -n "$GATEWAY_TOKEN" ]; then
             echo ""
             echo -e "  ${BOLD}${YELLOW}→ Agent UI Gateway Token${NC} ${DIM}(paste on first visit to http://localhost:18789/):${NC}"
