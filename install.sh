@@ -258,9 +258,18 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
                 fi
                 echo -e "  ${GREEN}$RUNTIME back online.${NC}"
             fi
+            cd "$SAFECLAW_DIR"
+            # Always refresh :latest-tagged images on an existing install.
+            # `compose up` uses whatever image is cached locally, so a user
+            # who ran the installer months ago will still be on the stale
+            # :latest unless we explicitly pull. `pull --policy always`
+            # hits the registry; any non-:latest pins are skipped cheaply.
+            if [ -f "$SAFECLAW_DIR/docker-compose.safe.yml" ]; then
+                echo -e "  ${DIM}Checking for image updates...${NC}"
+                $RUNTIME compose $COMPOSE_ARGS pull aep-proxy 2>&1 | grep -vE "^$|Pulling|level=" || true
+            fi
             echo -e "  ${CYAN}Starting SafeClaw...${NC} ${DIM}(Ctrl+C to stop)${NC}"
             echo ""
-            cd "$SAFECLAW_DIR"
             # Ensure a clean slate: remove any stopped/orphaned containers
             # first. This sidesteps "container already exists" / dependency
             # errors that compose hits when .env changed since the last run
