@@ -169,6 +169,50 @@ install_container_runtime() {
 }
 
 # ---------------------------------------------------------------------------
+# Write openclaw.json with the right shape for the chosen install mode.
+#
+# In safe mode, we MUST seed `models.providers.openai/anthropic` pointing at
+# http://aep-proxy:8899/v1. Without this, OpenClaw ignores OPENAI_BASE_URL /
+# ANTHROPIC_BASE_URL env vars (verified against the source: provider baseUrl
+# is loaded from openclaw.json only — process.env is never consulted) and the
+# agent goes direct to api.openai.com with the sentinel key, gets 401, and
+# the proxy never sees the request.
+#
+# Args: $1=path to openclaw.json, $2="safe" | "minimal"
+# ---------------------------------------------------------------------------
+write_openclaw_config() {
+    local file="$1"
+    local mode="$2"
+    if [ "$mode" = "safe" ]; then
+        cat > "$file" <<'JSON'
+{
+  "gateway": {
+    "mode": "local"
+  },
+  "models": {
+    "providers": {
+      "openai": {
+        "baseUrl": "http://aep-proxy:8899/v1",
+        "apiKey": "aep-proxy-managed",
+        "auth": "api-key",
+        "models": []
+      },
+      "anthropic": {
+        "baseUrl": "http://aep-proxy:8899/v1",
+        "apiKey": "aep-proxy-managed",
+        "auth": "api-key",
+        "models": []
+      }
+    }
+  }
+}
+JSON
+    else
+        echo '{ "gateway": { "mode": "local" } }' > "$file"
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # Start SafeClaw: pre-flight the runtime, pull :latest, then exec `compose up`.
 # Used by both the existing-install auto-start branch and the end-of-install
 # "Start now?" prompt, so both paths get the same sanity checks and image
@@ -268,8 +312,32 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
         fi
     done
     mkdir -p "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace"
+
+    # Pick safe vs minimal config based on what compose files are present.
+    # COMPOSE_ARGS / VARIANT were derived above from existence of the safe overlay.
+    if [ "$VARIANT" = "Full SafeClaw (OpenClaw + Agent Safety Net)" ]; then
+        config_mode="safe"
+    else
+        config_mode="minimal"
+    fi
+
     if [ ! -f "$SAFECLAW_DIR/config/openclaw.json" ]; then
-        echo '{ "gateway": { "mode": "local" } }' > "$SAFECLAW_DIR/config/openclaw.json"
+        write_openclaw_config "$SAFECLAW_DIR/config/openclaw.json" "$config_mode"
+    elif [ "$config_mode" = "safe" ] && ! grep -q '"providers"' "$SAFECLAW_DIR/config/openclaw.json"; then
+        # Existing safe-mode install missing providers routing — agent will
+        # bypass the proxy. Rewrite via a root-in-container so we can clobber
+        # the UID-1000-owned file from any host UID.
+        echo -e "  ${YELLOW}Upgrading openclaw.json with proxy routing...${NC}"
+        write_openclaw_config "/tmp/safeclaw-openclaw-upgrade.$$.json" safe
+        if "${CONTAINER_CMD:-docker}" run --rm -v "$SAFECLAW_DIR/config:/cfg" \
+                -v "/tmp/safeclaw-openclaw-upgrade.$$.json:/in.json:ro" \
+                alpine sh -c 'cp /in.json /cfg/openclaw.json && chmod 644 /cfg/openclaw.json' >/dev/null 2>&1; then
+            echo -e "  ${GREEN}Upgraded.${NC}"
+        else
+            echo -e "  ${YELLOW}Couldn't auto-upgrade openclaw.json. Edit ~/safeclaw/config/openclaw.json manually:${NC}"
+            echo -e "  ${DIM}    add models.providers.{openai,anthropic} with baseUrl=http://aep-proxy:8899/v1${NC}"
+        fi
+        rm -f "/tmp/safeclaw-openclaw-upgrade.$$.json"
     fi
     chmod -R a+rwX "$SAFECLAW_DIR/config" "$SAFECLAW_DIR/workspace" 2>/dev/null || true
 
@@ -441,9 +509,12 @@ OPENCLAW_GATEWAY_TOKEN=$gateway_token
 ENVEOF
         fi
 
-        # Drop a minimal OpenClaw config so the gateway boots without `openclaw setup`.
+        # Drop an OpenClaw config seeded with provider routing through the
+        # aep-proxy. Without this, OpenClaw bypasses the proxy and calls
+        # api.openai.com directly (env vars OPENAI_BASE_URL/ANTHROPIC_BASE_URL
+        # are NOT honored — provider baseUrl is loaded from this file only).
         if [ ! -f "$SAFECLAW_DIR/config/openclaw.json" ]; then
-            echo '{ "gateway": { "mode": "local" } }' > "$SAFECLAW_DIR/config/openclaw.json"
+            write_openclaw_config "$SAFECLAW_DIR/config/openclaw.json" safe
         fi
 
         # Container runs as UID 1000 (node user); host UID varies. On Linux the
@@ -577,8 +648,10 @@ ENVEOF
 
         # Drop a minimal OpenClaw config so the gateway boots without `openclaw setup`.
         # Without this, the container crash-loops complaining about missing config.
+        # Choice 3 has no aep-proxy in the network, so we deliberately use the
+        # minimal config (no provider routing) — OpenClaw uses defaults.
         if [ ! -f "$SAFECLAW_DIR/config/openclaw.json" ]; then
-            echo '{ "gateway": { "mode": "local" } }' > "$SAFECLAW_DIR/config/openclaw.json"
+            write_openclaw_config "$SAFECLAW_DIR/config/openclaw.json" minimal
         fi
 
         # See case 1 for the UID mismatch rationale — required on Linux hosts.
