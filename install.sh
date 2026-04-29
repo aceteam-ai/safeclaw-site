@@ -184,24 +184,76 @@ write_openclaw_config() {
     local file="$1"
     local mode="$2"
     if [ "$mode" = "safe" ]; then
+        # mode:"replace" stops OpenClaw from merging its 200-model default
+        # catalog (gpt-5.5, etc.) with our 4 — those defaults aren't routable
+        # through the AceTeam gateway and produce silent "incomplete terminal
+        # response" failures. The gateway-supported set is small and stable.
+        # agents.defaults.model.primary overrides the hardcoded gpt-5.5 default
+        # so a fresh session picks a routable model out of the box.
         cat > "$file" <<'JSON'
 {
   "gateway": {
     "mode": "local"
   },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openai/gpt-4o"
+      }
+    }
+  },
   "models": {
+    "mode": "replace",
     "providers": {
       "openai": {
         "baseUrl": "http://aep-proxy:8899/v1",
         "apiKey": "aep-proxy-managed",
         "auth": "api-key",
-        "models": []
+        "models": [
+          {
+            "id": "gpt-4o",
+            "name": "GPT-4o",
+            "reasoning": false,
+            "input": ["text", "image"],
+            "cost": { "input": 2.5, "output": 10, "cacheRead": 1.25, "cacheWrite": 0 },
+            "contextWindow": 128000,
+            "maxTokens": 16384
+          },
+          {
+            "id": "gpt-4o-mini",
+            "name": "GPT-4o mini",
+            "reasoning": false,
+            "input": ["text", "image"],
+            "cost": { "input": 0.15, "output": 0.6, "cacheRead": 0.075, "cacheWrite": 0 },
+            "contextWindow": 128000,
+            "maxTokens": 16384
+          }
+        ]
       },
       "anthropic": {
         "baseUrl": "http://aep-proxy:8899/v1",
         "apiKey": "aep-proxy-managed",
         "auth": "api-key",
-        "models": []
+        "models": [
+          {
+            "id": "claude-3-5-sonnet-20241022",
+            "name": "Claude 3.5 Sonnet",
+            "reasoning": false,
+            "input": ["text", "image"],
+            "cost": { "input": 3, "output": 15, "cacheRead": 0.3, "cacheWrite": 3.75 },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "claude-3-5-haiku-20241022",
+            "name": "Claude 3.5 Haiku",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": { "input": 0.8, "output": 4, "cacheRead": 0.08, "cacheWrite": 1 },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
       }
     }
   }
@@ -323,11 +375,14 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
 
     if [ ! -f "$SAFECLAW_DIR/config/openclaw.json" ]; then
         write_openclaw_config "$SAFECLAW_DIR/config/openclaw.json" "$config_mode"
-    elif [ "$config_mode" = "safe" ] && ! grep -q '"providers"' "$SAFECLAW_DIR/config/openclaw.json"; then
-        # Existing safe-mode install missing providers routing — agent will
-        # bypass the proxy. Rewrite via a root-in-container so we can clobber
-        # the UID-1000-owned file from any host UID.
-        echo -e "  ${YELLOW}Upgrading openclaw.json with proxy routing...${NC}"
+    elif [ "$config_mode" = "safe" ] && ! grep -q '"mode": "replace"' "$SAFECLAW_DIR/config/openclaw.json"; then
+        # Existing safe-mode install missing providers routing OR missing the
+        # explicit model list — either way OpenClaw will fall back to its
+        # built-in default catalog (gpt-5.5 etc.) which the AceTeam gateway
+        # doesn't route, producing silent "incomplete terminal response"
+        # failures. Rewrite via a root-in-container so we can clobber the
+        # UID-1000-owned file from any host UID.
+        echo -e "  ${YELLOW}Upgrading openclaw.json with proxy routing + model list...${NC}"
         write_openclaw_config "/tmp/safeclaw-openclaw-upgrade.$$.json" safe
         if "${CONTAINER_CMD:-docker}" run --rm -v "$SAFECLAW_DIR/config:/cfg" \
                 -v "/tmp/safeclaw-openclaw-upgrade.$$.json:/in.json:ro" \
