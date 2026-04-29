@@ -296,9 +296,8 @@ if [ -f "$SAFECLAW_DIR/.env" ] && [ -f "$SAFECLAW_DIR/docker-compose.yml" ] && [
     echo "    cd ~/safeclaw && $RUNTIME compose $COMPOSE_ARGS up"
     echo ""
     if [ -n "$GATEWAY_TOKEN" ]; then
-        echo -e "  ${BOLD}${YELLOW}→ Agent UI Gateway Token${NC} ${DIM}(paste on first visit to http://localhost:18789/):${NC}"
-        echo ""
-        echo -e "      ${BOLD}${CYAN}$GATEWAY_TOKEN${NC}"
+        echo -e "  ${BOLD}Agent UI:${NC} ${CYAN}http://localhost:18789/#token=$GATEWAY_TOKEN${NC}"
+        echo -e "  ${DIM}  Token is in the URL fragment — paste the whole link to skip the prompt.${NC}"
         echo ""
     fi
     printf "  Start now? [${BOLD}Y${NC}/n/r=reinstall]: "
@@ -464,12 +463,11 @@ ENVEOF
         echo ""
         echo -e "  ${BOLD}First run:${NC} open ${CYAN}http://localhost:8899/dashboard/${NC} to pick a provider"
         echo -e "  ${DIM}  → \$5 AceTeam credit (no key), your own OpenAI/Anthropic key, or TokenRouter${NC}"
-        echo -e "  ${DIM}Agent UI:${NC} ${CYAN}http://localhost:18789/${NC}"
         if [ -n "$GATEWAY_TOKEN" ]; then
-            echo ""
-            echo -e "  ${BOLD}${YELLOW}→ Agent UI Gateway Token${NC} ${DIM}(paste on first visit to http://localhost:18789/):${NC}"
-            echo ""
-            echo -e "      ${BOLD}${CYAN}$GATEWAY_TOKEN${NC}"
+            echo -e "  ${DIM}Agent UI:${NC} ${CYAN}http://localhost:18789/#token=$GATEWAY_TOKEN${NC}"
+            echo -e "  ${DIM}  Token is in the URL fragment — open this link and the gateway auto-authenticates.${NC}"
+        else
+            echo -e "  ${DIM}Agent UI:${NC} ${CYAN}http://localhost:18789/${NC}"
         fi
 
         # Auto-start so the user doesn't have to copy-paste + context-switch.
